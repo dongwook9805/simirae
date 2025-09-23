@@ -12,19 +12,10 @@
     <script src="https://unpkg.com/feather-icons"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
-        body {
-            font-family: 'Noto Sans KR', sans-serif;
-        }
-        .hero-gradient {
-            background: linear-gradient(135deg, #6e8efb 0%, #a777e3 100%);
-        }
-        .card-hover {
-            transition: all 0.3s ease;
-        }
-        .card-hover:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-        }
+        body { font-family: 'Noto Sans KR', sans-serif; }
+        .hero-gradient { background: linear-gradient(135deg, #6e8efb 0%, #a777e3 100%); }
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -43,7 +34,8 @@
                     <a href="#" class="text-gray-500 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 border-transparent hover:border-gray-300 text-sm font-medium">프로그램</a>
                     <a href="#teachers" class="text-gray-500 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 border-transparent hover:border-gray-300 text-sm font-medium">강사진</a>
                     <a href="#" class="text-gray-500 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 border-transparent hover:border-gray-300 text-sm font-medium">수강후기</a>
-                    <a href="#" class="text-gray-500 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 border-transparent hover:border-gray-300 text-sm font-medium">문의하기</a>
+                    <!-- ▼ 변경: 문의하기에 open-chat 클래스 추가 -->
+                    <a href="#" class="text-gray-500 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 border-transparent hover:border-gray-300 text-sm font-medium open-chat">문의하기</a>
                 </div>
                 <div class="-mr-2 flex items-center md:hidden">
                     <button type="button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500" aria-controls="mobile-menu" aria-expanded="false">
@@ -60,7 +52,8 @@
                 <a href="#" class="border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium">프로그램</a>
                 <a href="#" class="border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium">강사진</a>
                 <a href="#" class="border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium">수강후기</a>
-                <a href="#" class="border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium">문의하기</a>
+                <!-- ▼ 변경: 문의하기에 open-chat 클래스 추가 -->
+                <a href="#" class="border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium open-chat">문의하기</a>
             </div>
         </div>
     </nav>
@@ -207,8 +200,8 @@
                             <p class="mt-1 text-sm text-indigo-600">컴퓨터 교육 전문</p>
                             <div class="mt-4 text-sm text-gray-500 space-y-2 text-left">
                                 <p>• 20+년 현장 강의로 수준 진단·맞춤 지도</p>
-                                <p>• 초·중·고·대학 대상 커리큘럼 설계·운영 경험이 풍부</p>
-                                <p>• 기초 약한 학생도 끌어올린 실사례 다수</p>
+                                <p>• 초·중·고·대학 대상 커리큘럼 설계·운영 경험 풍부</p>
+                                <p>• 학생 수상경력 실사례 다수</p>
                                 <p>• 대학생 대상 코딩 교육 경력</p>
                             </div>
                         </div>
@@ -263,7 +256,7 @@
                         <div class="ml-4">
                             <h3 class="text-lg leading-6 font-medium text-gray-900">소수정예 수업</h3>
                             <p class="mt-2 text-base text-gray-500">
-                                최대 8명의 소규모 수업으로 개인별 맞춤형 교육이 가능합니다
+                                최대 20명의 소규모 수업으로 개인별 맞춤형 교육이 가능합니다
                             </p>
                         </div>
                     </div>
@@ -278,7 +271,7 @@
                         <div class="ml-4">
                             <h3 class="text-lg leading-6 font-medium text-gray-900">수상 경력 강사진</h3>
                             <p class="mt-2 text-base text-gray-500">
-                                각종 공모전 수상 경력을 보유한 전문 강사진이 직접 지도합니다
+                                각종 수상 경력을 보유한 전문 강사진이 직접 지도합니다
                             </p>
                         </div>
                     </div>
@@ -338,107 +331,49 @@
         <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
                 <div>
-                    <h3 class="text-sm font-semibold text-gray-400 tracking-wider uppercase">
-                        프로그램
-                    </h3>
+                    <h3 class="text-sm font-semibold text-gray-400 tracking-wider uppercase">프로그램</h3>
                     <ul class="mt-4 space-y-4">
-                        <li>
-                            <a href="#" class="text-base text-gray-300 hover:text-white">
-                                초등 코딩
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#" class="text-base text-gray-300 hover:text-white">
-                                앱 개발
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#" class="text-base text-gray-300 hover:text-white">
-                                AI/빅데이터
-                            </a>
-                        </li>
+                        <li><a href="#" class="text-base text-gray-300 hover:text-white">초등 코딩</a></li>
+                        <li><a href="#" class="text-base text-gray-300 hover:text-white">앱 개발</a></li>
+                        <li><a href="#" class="text-base text-gray-300 hover:text-white">AI/빅데이터</a></li>
                     </ul>
                 </div>
 
                 <div>
-                    <h3 class="text-sm font-semibold text-gray-400 tracking-wider uppercase">
-                        학원 정보
-                    </h3>
+                    <h3 class="text-sm font-semibold text-gray-400 tracking-wider uppercase">학원 정보</h3>
                     <ul class="mt-4 space-y-4">
-                        <li>
-                            <a href="#" class="text-base text-gray-300 hover:text-white">
-                                오시는 길
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#" class="text-base text-gray-300 hover:text-white">
-                                운영 시간
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#" class="text-base text-gray-300 hover:text-white">
-                                학원 소개
-                            </a>
-                        </li>
+                        <li><a href="#" class="text-base text-gray-300 hover:text-white">오시는 길</a></li>
+                        <li><a href="#" class="text-base text-gray-300 hover:text-white">운영 시간</a></li>
+                        <li><a href="#" class="text-base text-gray-300 hover:text-white">학원 소개</a></li>
                     </ul>
                 </div>
 
                 <div>
-                    <h3 class="text-sm font-semibold text-gray-400 tracking-wider uppercase">
-                        지원
-                    </h3>
+                    <h3 class="text-sm font-semibold text-gray-400 tracking-wider uppercase">지원</h3>
                     <ul class="mt-4 space-y-4">
-                        <li>
-                            <a href="#" class="text-base text-gray-300 hover:text-white">
-                                자주 묻는 질문
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#" class="text-base text-gray-300 hover:text-white">
-                                수강료 안내
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#" class="text-base text-gray-300 hover:text-white">
-                                장학 제도
-                            </a>
-                        </li>
+                        <li><a href="#" class="text-base text-gray-300 hover:text-white">자주 묻는 질문</a></li>
+                        <li><a href="#" class="text-base text-gray-300 hover:text-white">수강료 안내</a></li>
+                        <li><a href="#" class="text-base text-gray-300 hover:text-white">장학 제도</a></li>
                     </ul>
                 </div>
 
                 <div>
-                    <h3 class="text-sm font-semibold text-gray-400 tracking-wider uppercase">
-                        연락처
-                    </h3>
+                    <h3 class="text-sm font-semibold text-gray-400 tracking-wider uppercase">연락처</h3>
                     <ul class="mt-4 space-y-4">
-                        <li class="text-base text-gray-300">
-                            전화: 0507-1415-5007
-                        </li>
-                        <li class="text-base text-gray-300">
-                            이메일: donguk9805@gmail.com
-                        </li>
+                        <li class="text-base text-gray-300">전화: 0507-1415-5007</li>
+                        <li class="text-base text-gray-300">이메일: donguk9805@gmail.com</li>
                         <li class="flex space-x-6 mt-4">
-                            <a href="#" class="text-gray-400 hover:text-white">
-                                <i data-feather="facebook"></i>
-                            </a>
-                            <a href="#" class="text-gray-400 hover:text-white">
-                                <i data-feather="instagram"></i>
-                            </a>
-                            <a href="#" class="text-gray-400 hover:text-white">
-                                <i data-feather="youtube"></i>
-                            </a>
+                            <a href="#" class="text-gray-400 hover:text-white"><i data-feather="facebook"></i></a>
+                            <a href="#" class="text-gray-400 hover:text-white"><i data-feather="instagram"></i></a>
+                            <a href="#" class="text-gray-400 hover:text-white"><i data-feather="youtube"></i></a>
                         </li>
                     </ul>
                 </div>
             </div>
             <div class="mt-8 border-t border-gray-700 pt-8 md:flex md:items-center md:justify-between">
                 <div class="flex space-x-6 md:order-2">
-                    <a href="#" class="text-gray-400 hover:text-white">
-                        <i data-feather="message-square"></i>
-                    </a>
-                    <a href="#" class="text-gray-400 hover:text-white">
-                        <i data-feather="mail"></i>
-                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white"><i data-feather="message-square"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-white"><i data-feather="mail"></i></a>
                 </div>
                 <p class="mt-8 text-base text-gray-400 md:mt-0 md:order-1">
                     &copy; 2023 SW 미래영재 컴퓨터학원. All rights reserved.
@@ -455,12 +390,34 @@
         });
 
         // Initialize animations and icons
-        AOS.init({
-            duration: 800,
-            easing: 'ease-out-quad',
-            once: true
-        });
+        AOS.init({ duration: 800, easing: 'ease-out-quad', once: true });
         feather.replace();
     </script>
+
+    <!-- ▼▼▼ Crisp 채팅 위젯 + "문의하기" 클릭 시 열기 ▼▼▼ -->
+    <script>
+      // 1) 위젯 로드
+      window.$crisp = [];
+      window.CRISP_WEBSITE_ID = "aa5eeb9f-4d45-4e94-bd7e-9669115e0d3d"; // ← 네 값으로 교체
+      (function () {
+        var d = document, s = d.createElement("script");
+        s.src = "https://client.crisp.chat/l.js"; s.async = 1;
+        d.getElementsByTagName("head")[0].appendChild(s);
+      })();
+      // 한국어 고정
+      window.$crisp.push(["set", "locale", "ko"]);
+
+      // 2) "문의하기" 클릭 시 채팅 오픈
+      function bindChatOpener(){
+        document.querySelectorAll('.open-chat').forEach(a=>{
+          a.addEventListener('click', function(e){
+            e.preventDefault();
+            if (window.$crisp) { $crisp.push(["do", "chat:open"]); }
+          });
+        });
+      }
+      document.addEventListener('DOMContentLoaded', bindChatOpener);
+    </script>
+    <!-- ▲▲▲ Crisp 끝 ▲▲▲ -->
 </body>
 </html>
