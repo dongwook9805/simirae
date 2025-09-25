@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>SW 미래영재 컴퓨터학원</title>
   <link rel="icon" type="image/x-icon" href="/static/favicon.ico"/>
@@ -16,10 +16,34 @@
     .hero-gradient { background: linear-gradient(135deg, #6e8efb 0%, #a777e3 100%); }
     .card-hover { transition: all 0.3s ease; }
     .card-hover:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-    /* Booking UX helpers */
-    .booking-open { overflow: hidden; } /* prevent background scroll when modal open */
     .k-pressable:active { transform: translateY(1px); }
     .ring-focus { box-shadow: 0 0 0 3px rgba(79,70,229,0.25); }
+
+    /* --- Mobile booking fixes --- */
+    #booking-modal { z-index: 2147483000; } /* Crisp 위로 */
+    #booking-modal .scroll-area { -webkit-overflow-scrolling: touch; }
+
+    /* iOS 주소창 높이 문제 대응: svh 지원 시 사용, 아니면 vh */
+    @supports (height: 100svh) { .modal-vh { height: 90svh; } }
+    @supports not (height: 100svh) { .modal-vh { height: 90vh; } }
+
+    /* 안전영역 패딩 */
+    :root { --sab: env(safe-area-inset-bottom, 0px); }
+    #booking-modal .with-safe { padding-bottom: max(16px, var(--sab)); }
+
+    /* iOS 입력 확대 방지 */
+    #booking-modal input,
+    #booking-modal select,
+    #booking-modal textarea { font-size: 16px; }
+
+    /* 캘린더/슬롯 터치 타겟 확대 */
+    #calendar-grid button { min-height: 44px; }
+    #slot-container button { min-height: 44px; }
+
+    /* 작은 화면 여백 */
+    @media (max-width: 640px) {
+      #booking-modal .panel-pad { padding-left: 12px; padding-right: 12px; }
+    }
   </style>
 </head>
 <body class="bg-gray-50">
@@ -38,8 +62,7 @@
           <a href="#programs" class="text-gray-500 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 border-transparent hover:border-gray-300 text-sm font-medium">프로그램</a>
           <a href="#teachers" class="text-gray-500 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 border-transparent hover:border-gray-300 text-sm font-medium">강사진</a>
           <a href="#reviews" class="text-gray-500 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 border-transparent hover:border-gray-300 text-sm font-medium">수강후기</a>
-          <a href="#" class="text-gray-500 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 border-transparent hover:border-gray-300 text-sm font-medium open-chat">문의하기</a>
-          <!-- NEW: 예약 버튼 -->
+          <a href="#" class="text-gray-500 hover:text-gray-700 inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium open-chat">문의하기</a>
           <a href="#" class="text-indigo-600 hover:text-indigo-800 inline-flex items-center px-3 py-1.5 border border-indigo-200 rounded-full text-sm font-semibold open-booking">예약</a>
         </div>
         <div class="-mr-2 flex items-center md:hidden">
@@ -57,7 +80,6 @@
         <a href="#teachers" class="border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium">강사진</a>
         <a href="#reviews" class="border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium">수강후기</a>
         <a href="#" class="border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium open-chat">문의하기</a>
-        <!-- NEW: 예약 버튼 모바일 -->
         <a href="#" class="border-transparent text-indigo-600 hover:bg-gray-50 hover:border-indigo-300 hover:text-indigo-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium open-booking">예약</a>
       </div>
     </div>
@@ -79,7 +101,6 @@
         <a href="#" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-800 bg-opacity-60 hover:bg-opacity-70 open-chat">
           상담 연결
         </a>
-        <!-- NEW: 체험예약 CTA -->
         <a href="#" class="inline-flex items-center px-6 py-3 border border-indigo-200 text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 open-booking">
           무료 체험 수업 예약
         </a>
@@ -317,7 +338,6 @@
         <a href="#" class="mt-8 w-full inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-indigo-600 bg-white hover:bg-indigo-50 sm:w-auto open-chat" data-aos="fade-up" data-aos-delay="400">
           채팅으로 상담하기
         </a>
-        <!-- NEW: CTA 예약 -->
         <a href="#" class="mt-8 w-full inline-flex items-center justify-center px-5 py-3 border border-indigo-200 text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 sm:w-auto open-booking" data-aos="fade-up" data-aos-delay="450">
           체험 수업 예약
         </a>
@@ -338,6 +358,7 @@
             <li><a href="#programs" class="text-base text-gray-300 hover:text-white">피지컬컴퓨팅·아두이노</a></li>
           </ul>
         </div>
+
         <div>
           <h3 class="text-sm font-semibold text-gray-400 tracking-wider uppercase">학원 정보</h3>
           <ul class="mt-4 space-y-4">
@@ -346,6 +367,7 @@
             <li><a href="#" class="text-base text-gray-300 hover:text-white">학원 소개</a></li>
           </ul>
         </div>
+
         <div>
           <h3 class="text-sm font-semibold text-gray-400 tracking-wider uppercase">지원</h3>
           <ul class="mt-4 space-y-4">
@@ -354,6 +376,7 @@
             <li><a href="#" class="text-base text-gray-300 hover:text-white">장학 제도</a></li>
           </ul>
         </div>
+
         <div>
           <h3 class="text-sm font-semibold text-gray-400 tracking-wider uppercase">연락처</h3>
           <ul class="mt-4 space-y-4">
@@ -383,12 +406,10 @@
     </div>
   </footer>
 
-  <!-- ====== 예약 캘린더 모달 (UX 강화) ====== -->
+  <!-- ====== 예약 캘린더 모달 ====== -->
   <div id="booking-modal" class="fixed inset-0 z-50 hidden" aria-hidden="true">
-    <!-- overlay -->
     <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm"></div>
-    <!-- panel -->
-    <div class="relative mx-auto max-w-5xl h-[90vh] mt-6 bg-white rounded-2xl shadow-xl overflow-hidden">
+    <div class="relative mx-auto max-w-5xl modal-vh mt-6 bg-white rounded-2xl shadow-xl overflow-hidden">
       <!-- header -->
       <div class="flex items-center justify-between px-6 py-4 border-b">
         <div class="flex items-center gap-3">
@@ -401,10 +422,9 @@
         <button id="booking-close" class="p-2 rounded-lg hover:bg-gray-100" aria-label="닫기"><i data-feather="x"></i></button>
       </div>
 
-      <!-- content -->
-      <div class="grid grid-cols-1 lg:grid-cols-3 h-[calc(90vh-64px)]">
+      <div class="grid grid-cols-1 lg:grid-cols-3 h-[calc(90%-64px)]">
         <!-- left: steps -->
-        <div class="lg:col-span-2 overflow-y-auto p-6 space-y-6">
+        <div class="lg:col-span-2 overflow-y-auto p-6 space-y-6 scroll-area panel-pad with-safe">
           <!-- Stepper -->
           <ol class="flex items-center text-sm text-gray-600">
             <li class="step-item flex items-center gap-2" data-step="1">
@@ -553,7 +573,7 @@
         </div>
 
         <!-- right: summary -->
-        <aside class="border-l p-6 bg-gray-50/70 overflow-y-auto">
+        <aside class="border-l p-6 bg-gray-50/70 overflow-y-auto scroll-area panel-pad with-safe">
           <div class="text-sm text-gray-500 mb-2">요약</div>
           <div class="p-4 bg-white border rounded-xl shadow-sm">
             <dl class="text-sm text-gray-700 space-y-2">
@@ -574,7 +594,7 @@
     </div>
 
     <!-- toast -->
-    <div id="toast" class="fixed left-1/2 -translate-x-1/2 bottom-6 hidden">
+    <div id="toast" class="fixed left-1/2 -translate-x-1/2 bottom-6 with-safe hidden">
       <div class="px-4 py-2 bg-gray-900 text-white rounded-full shadow-lg text-sm">예약이 저장되었습니다</div>
     </div>
   </div>
@@ -593,19 +613,15 @@
 
     // ===== Crisp 채팅 위젯 =====
     window.$crisp = window.$crisp || [];
-    window.CRISP_WEBSITE_ID = "aa5eeb9f-4d45-4e94-bd7e-9669115e0d3d"; // 유지
-    (function () {
-      var d = document, s = d.createElement("script");
-      s.src = "https://client.crisp.chat/l.js"; s.async = 1;
-      d.getElementsByTagName("head")[0].appendChild(s);
-    })();
+    window.CRISP_WEBSITE_ID = "aa5eeb9f-4d45-4e94-bd7e-9669115e0d3d";
+    (function () { var d = document, s = d.createElement("script"); s.src = "https://client.crisp.chat/l.js"; s.async = 1; d.getElementsByTagName("head")[0].appendChild(s); })();
     window.$crisp.push(["set", "locale", "ko"]);
 
     function bindChatOpener(){
       document.querySelectorAll('.open-chat').forEach(a=>{
         a.addEventListener('click', function(e){
           e.preventDefault();
-          if (window.$crisp) { $crisp.push(["do", "chat:open"]);}
+          if (window.$crisp) { $crisp.push(["do", "chat:open"]); }
         });
       });
     }
@@ -615,9 +631,9 @@
     const state = {
       program: 'IT·코딩 자격증',
       teacher: '허지연 원장',
-      date: null,      // Date object (local)
+      date: null,      // Date object
       time: null,      // 'HH:MM'
-      rangeDays: 45,   // reservable window (days)
+      rangeDays: 45,   // reservable window
       durationMin: 60, // 50 + 10
     };
 
@@ -636,12 +652,17 @@
       }
     };
 
+    // === API base (Apps Script Web App URL) ===
+    const API_BASE = "https://script.google.com/macros/s/AKfycbzN4tIbtq399pnhcIcv7U1GLIISXdXjQHG9NZT3nJ-pvnwDTLKX1Dt4OgXzPpkecaA5/exec"; // <-- 여기를 네 URL로 교체
+
+    // reserved cache: { 'YYYY-MM-DD': ['HH:MM', ...] }
+    let reservedCache = {};
+
     // --- Utils ---
     const pad = n => String(n).padStart(2,'0');
     const dayK = d => ['일','월','화','수','목','금','토'][d];
     const fmtDate = dt => `${dt.getFullYear()}년 ${pad(dt.getMonth()+1)}월 ${pad(dt.getDate())}일 (${dayK(dt.getDay())})`;
     const ymd = dt => `${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())}`;
-    const cloneDate = d => new Date(d.getFullYear(), d.getMonth(), d.getDate());
 
     function toast(msg='완료되었습니다'){
       const t = document.getElementById('toast');
@@ -650,15 +671,34 @@
       setTimeout(()=>t.classList.add('hidden'), 1800);
     }
 
+    // === Body scroll lock without jump ===
+    let __lockScrollY = 0;
+    function lockBody() {
+      __lockScrollY = window.scrollY || 0;
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${__lockScrollY}px`;
+      document.body.style.left = '0';
+      document.body.style.right = '0';
+      document.body.style.width = '100%';
+    }
+    function unlockBody() {
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.left = '';
+      document.body.style.right = '';
+      document.body.style.width = '';
+      window.scrollTo(0, __lockScrollY);
+    }
+
     // --- Open/Close modal ---
     function openBooking(){
       document.getElementById('booking-modal').classList.remove('hidden');
-      document.body.classList.add('booking-open');
+      lockBody();
       feather.replace();
     }
     function closeBooking(){
       document.getElementById('booking-modal').classList.add('hidden');
-      document.body.classList.remove('booking-open');
+      unlockBody();
     }
     document.querySelectorAll('.open-booking').forEach(a=>a.addEventListener('click', e => { e.preventDefault(); openBooking(); }));
     document.getElementById('booking-close').addEventListener('click', closeBooking);
@@ -697,58 +737,85 @@
       return t>=s && t<=e;
     }
 
-    function getSlotsForDate(dt){
-      const teacherMap = availability[state.teacher] || {};
-      return (teacherMap[dt.getDay()] || []).slice();
+    // Fetch reserved slots for teacher in range
+    async function loadReserved(teacher, fromYmd, toYmd){
+      const url = `${API_BASE}?mode=reserved&teacher=${encodeURIComponent(teacher)}&from=${fromYmd}&to=${toYmd}`;
+      try{
+        const res = await fetch(url);
+        const data = await res.json();
+        reservedCache = data.ok ? (data.reserved || {}) : {};
+      }catch(e){
+        reservedCache = {}; // fail-open
+      }
     }
 
-    function loadLevel(dt){
-      const n = getSlotsForDate(dt).length;
-      if(n >= 3) return 'easy';
-      if(n === 2) return 'mid';
-      if(n === 1) return 'tight';
-      return 'none';
+    // month range helper
+    function monthRangeYmd(dt){
+      const first = new Date(dt.getFullYear(), dt.getMonth(), 1);
+      const last  = new Date(dt.getFullYear(), dt.getMonth()+1, 0);
+      const start = new Date(); start.setHours(0,0,0,0);
+      const end = new Date(); end.setDate(end.getDate()+state.rangeDays-1);
+      const s = new Date(Math.max(start, first));
+      const e = new Date(Math.min(end, last));
+      const _ymd = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+      return {from: _ymd(s), to: _ymd(e)};
+    }
+
+    // get slots minus reserved
+    function getSlotsForDate(dt){
+      const teacherMap = availability[state.teacher] || {};
+      const base = teacherMap[dt.getDay()] || [];
+      const key = `${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())}`;
+      const reserved = reservedCache[key] || [];
+      return base.filter(t => !reserved.includes(t));
     }
 
     // --- Calendar ---
-    let calCursor = new Date(); // first day of current month
-    calCursor.setDate(1);
+    let calCursor = new Date(); calCursor.setDate(1);
 
-    function renderCalendar(){
+    async function renderCalendar(){
       const monthLabel = document.getElementById('month-label');
       monthLabel.textContent = `${calCursor.getFullYear()}년 ${pad(calCursor.getMonth()+1)}월`;
+
       const grid = document.getElementById('calendar-grid');
+      grid.innerHTML = '<div class="col-span-7 text-center text-sm text-gray-400 py-6">불러오는 중…</div>';
+
+      const rng = monthRangeYmd(calCursor);
+      await loadReserved(state.teacher, rng.from, rng.to);
+
       grid.innerHTML = '';
 
       const firstDay = new Date(calCursor);
       const startWeekday = firstDay.getDay();
       const lastDate = new Date(calCursor.getFullYear(), calCursor.getMonth()+1, 0).getDate();
 
-      // blanks
       for(let i=0;i<startWeekday;i++){ grid.appendChild(document.createElement('div')); }
 
       for(let d=1; d<=lastDate; d++){
         const dt = new Date(calCursor.getFullYear(), calCursor.getMonth(), d);
-        const disabled = !inRange(dt) || loadLevel(dt)==='none';
-        const level = loadLevel(dt);
+        const inWin = inRange(dt);
+        const slots = inWin ? getSlotsForDate(dt) : [];
+        const level = slots.length>=3 ? 'easy' : slots.length===2 ? 'mid' : slots.length===1 ? 'tight' : 'none';
 
         const btn = document.createElement('button');
         btn.type = 'button';
-        btn.className = 'relative p-2 rounded-lg text-center hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500';
-        btn.disabled = !inRange(dt);
-        btn.setAttribute('data-date', ymd(dt));
+        btn.className = 'relative p-2 rounded-lg text-center hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 min-h-[44px]';
+        btn.disabled = !inWin || level==='none';
         btn.innerHTML = `
-          <div class="text-sm ${disabled?'text-gray-300':'text-gray-900'} font-medium">${d}</div>
-          <div class="mt-1 h-1 rounded-full ${level==='easy'?'bg-green-400/80': level==='mid'?'bg-yellow-400/80': level==='tight'?'bg-red-400/80':'bg-gray-200'}"></div>
+          <div class="text-sm ${btn.disabled?'text-gray-300':'text-gray-900'} font-medium">${d}</div>
+          <div class="mt-1 h-1 rounded-full ${
+            level==='easy'?'bg-green-400/80':
+            level==='mid'?'bg-yellow-400/80':
+            level==='tight'?'bg-red-400/80':'bg-gray-200'
+          }"></div>
         `;
-        if(disabled){
+        if (btn.disabled) {
           btn.classList.add('opacity-40','cursor-not-allowed');
-        }else{
+        } else {
           btn.addEventListener('click', ()=>{
             state.date = dt;
             document.getElementById('selected-date-label').textContent = fmtDate(dt);
             renderSlots(dt);
-            // highlight selected
             grid.querySelectorAll('button').forEach(b=>b.classList.remove('ring-2','ring-indigo-500'));
             btn.classList.add('ring-2','ring-indigo-500');
           });
@@ -772,7 +839,7 @@
       const isToday = (new Date().toDateString() === dt.toDateString());
 
       const group = document.createElement('div');
-      group.className = 'flex flex-wrap gap-2';
+      group.className = 'flex flex-col sm:flex-row flex-wrap gap-2';
 
       slots.forEach(t=>{
         const [hh,mm] = t.split(':').map(Number);
@@ -781,7 +848,7 @@
 
         const b = document.createElement('button');
         b.type = 'button';
-        b.className = 'px-3 py-2 rounded-lg border text-sm hover:bg-indigo-50';
+        b.className = 'px-3 py-2 rounded-lg border text-sm hover:bg-indigo-50 w-full sm:w-auto';
         b.textContent = t;
         if(past){
           b.classList.add('opacity-40','cursor-not-allowed');
@@ -790,7 +857,6 @@
             state.time = t;
             document.getElementById('sum-time').textContent = t;
             document.getElementById('to-step-3').disabled = false;
-            // highlight
             group.querySelectorAll('button').forEach(x=>x.classList.remove('border-indigo-500','bg-indigo-50'));
             b.classList.add('border-indigo-500','bg-indigo-50');
           });
@@ -813,7 +879,6 @@
 
     // --- ICS / Google Calendar helpers ---
     function toUTCISOStringKST(localDate, hhmm, durationMin){
-      // Build Date from local (Asia/Seoul) and convert to UTC ISO (YYYYMMDDTHHMMSSZ)
       const [H,M] = hhmm.split(':').map(Number);
       const start = new Date(localDate.getFullYear(), localDate.getMonth(), localDate.getDate(), H, M, 0);
       const end = new Date(start.getTime() + durationMin*60000);
@@ -847,19 +912,18 @@ END:VCALENDAR`;
       const {dtStartZ, dtEndZ} = toUTCISOStringKST(localDate, hhmm, durationMin);
       const base = 'https://calendar.google.com/calendar/render?action=TEMPLATE';
       const text = '&text=' + encodeURIComponent(summary);
-      const dates = '&dates=' + dtStartZ.replace(/Z$/,'Z') + '/' + dtEndZ.replace(/Z$/,'Z');
+      const dates = '&dates=' + dtStartZ + '/' + dtEndZ;
       const det = '&details=' + encodeURIComponent(details);
       const loc = '&location=' + encodeURIComponent(location);
       return base + text + dates + det + loc;
     }
 
-    // --- Bindings & initial render ---
     // Step navigation
-    document.getElementById('to-step-2').addEventListener('click', ()=>{
+    document.getElementById('to-step-2').addEventListener('click', async ()=>{
       setStep(2);
       renderRangeLabel();
       calCursor = new Date(); calCursor.setDate(1);
-      renderCalendar();
+      await renderCalendar();
       document.getElementById('selected-date-label').textContent = '-';
       document.getElementById('slot-container').innerHTML = '<p class="text-sm text-gray-500">날짜를 먼저 선택해주세요.</p>';
       document.getElementById('to-step-3').disabled = true;
@@ -867,8 +931,6 @@ END:VCALENDAR`;
 
     document.querySelectorAll('[data-back]').forEach(b=>b.addEventListener('click', (e)=>{
       e.preventDefault();
-      // go to previous step
-      const s2 = !document.getElementById('step-2').classList.contains('hidden');
       const s3 = !document.getElementById('step-3').classList.contains('hidden');
       if(s3) setStep(2); else setStep(1);
     }));
@@ -876,7 +938,6 @@ END:VCALENDAR`;
     document.getElementById('to-step-3').addEventListener('click', ()=>{
       setStep(3);
       renderSummary();
-      // expose ICS/GCAL links
       const loc = '경남 김해시 율하1로 102 경보코아 203호';
       const summary = `SW 미래영재 무료 체험 수업 - ${state.program} (${state.teacher})`;
       const details = `프로그램: ${state.program}\n강사: ${state.teacher}\n예약일: ${fmtDate(state.date)} ${state.time}\n소요: 50분 수업 + 10분 상담`;
@@ -891,15 +952,14 @@ END:VCALENDAR`;
       state.program = e.target.value;
       document.getElementById('sum-program').textContent = state.program;
     });
-    document.getElementById('teacher-select').addEventListener('change', (e)=>{
+    document.getElementById('teacher-select').addEventListener('change', async (e)=>{
       state.teacher = e.target.value;
       document.getElementById('sum-teacher').textContent = state.teacher;
-      // reset date/time when teacher changes
       state.date = null; state.time = null;
       document.getElementById('sum-date').textContent = '-';
       document.getElementById('sum-time').textContent = '-';
       if(!document.getElementById('step-2').classList.contains('hidden')){
-        renderCalendar();
+        await renderCalendar();
         document.getElementById('selected-date-label').textContent = '-';
         document.getElementById('slot-container').innerHTML = '<p class="text-sm text-gray-500">날짜를 먼저 선택해주세요.</p>';
         document.getElementById('to-step-3').disabled = true;
@@ -907,50 +967,69 @@ END:VCALENDAR`;
     });
 
     // Month navigation
-    document.getElementById('prev-month').addEventListener('click', ()=>{
-      calCursor.setMonth(calCursor.getMonth()-1); renderCalendar();
+    document.getElementById('prev-month').addEventListener('click', async ()=>{
+      calCursor.setMonth(calCursor.getMonth()-1); await renderCalendar();
     });
-    document.getElementById('next-month').addEventListener('click', ()=>{
-      calCursor.setMonth(calCursor.getMonth()+1); renderCalendar();
+    document.getElementById('next-month').addEventListener('click', async ()=>{
+      calCursor.setMonth(calCursor.getMonth()+1); await renderCalendar();
     });
 
-    // Submit booking
-    document.getElementById('booking-form').addEventListener('submit', (e)=>{
+    // Submit booking (save to Apps Script / Sheets)
+    document.getElementById('booking-form').addEventListener('submit', async (e)=>{
       e.preventDefault();
       if(!state.date || !state.time){ alert('날짜/시간을 선택해 주세요.'); return; }
-      const name = document.getElementById('input-name').value.trim();
-      const grade = document.getElementById('input-grade').value;
-      const phone = document.getElementById('input-phone').value.trim();
-      const notes = document.getElementById('input-notes').value.trim();
-      const consent = document.getElementById('sms-consent').checked;
 
-      // Optional: send a message into Crisp chat
+      const payload = {
+        mode: 'reserve',
+        teacher: state.teacher,
+        date: ymd(state.date),
+        time: state.time,
+        program: state.program,
+        name: document.getElementById('input-name').value.trim(),
+        grade: document.getElementById('input-grade').value,
+        phone: document.getElementById('input-phone').value.trim(),
+        notes: document.getElementById('input-notes').value.trim()
+      };
+
+      let data = {ok:false}; let resStatus = 500;
+      try{
+        const res = await fetch(API_BASE, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+        resStatus = res.status;
+        data = await res.json();
+      }catch(_){ data = {ok:false}; }
+
+      if (resStatus === 409 || data.error === 'CONFLICT') {
+        alert('방금 다른 예약이 들어와서 이 시간은 마감되었습니다. 다시 선택해 주세요.');
+        const rng = monthRangeYmd(calCursor);
+        await loadReserved(state.teacher, rng.from, rng.to);
+        renderSlots(state.date);
+        return;
+      }
+      if (!data.ok) { alert('예약 저장 중 오류가 발생했습니다.'); return; }
+
       try{
         if(window.$crisp){
-          const msg =
-`[예약요청]
-학생: ${name} (${grade})
-연락처: ${phone}
-프로그램: ${state.program}
-강사: ${state.teacher}
-일시: ${fmtDate(state.date)} ${state.time}
-요청: ${notes || '-'}
-알림동의: ${consent ? '예' : '아니오'}`;
-          $crisp.push(["do", "message:send", ["text", msg]]);
+          const msg = `[예약요청]\n학생: ${payload.name} (${payload.grade})\n연락처: ${payload.phone}\n프로그램: ${payload.program}\n강사: ${payload.teacher}\n일시: ${fmtDate(state.date)} ${state.time}\n요청: ${payload.notes || '-'}`;
+          $crisp.push(["do","message:send",["text", msg]]);
         }
       }catch(_){}
 
       toast('예약이 저장되었습니다');
-      // simple UX: close after short delay
       setTimeout(closeBooking, 800);
     });
 
-    // Initialize step 1 summary
+    // 폼 포커스 시 가려짐 완화
+    document.querySelectorAll('#booking-form input, #booking-form textarea, #booking-form select')
+      .forEach(el=>{
+        el.addEventListener('focus', ()=>{
+          setTimeout(()=> el.scrollIntoView({ block: 'center', behavior: 'smooth' }), 50);
+        });
+      });
+
+    // Initialize summary labels
     document.getElementById('sum-program').textContent = state.program;
     document.getElementById('sum-teacher').textContent = state.teacher;
     renderRangeLabel();
   </script>
-
-  <!-- Crisp: ensure binding for open-chat after DOM ready (already defined above) -->
 </body>
 </html>
