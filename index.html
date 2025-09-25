@@ -17,7 +17,6 @@
     .card-hover { transition: all 0.3s ease; }
     .card-hover:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
     .k-pressable:active { transform: translateY(1px); }
-    .ring-focus { box-shadow: 0 0 0 3px rgba(79,70,229,0.25); }
 
     /* --- Mobile booking fixes --- */
     #booking-modal { z-index: 2147483000; } /* Crisp 위로 */
@@ -256,7 +255,7 @@
             </div>
           </div>
         </div>
-        <!-- (필요 시 더 추가) -->
+        <!-- (추가 가능) -->
       </div>
     </div>
   </div>
@@ -271,7 +270,6 @@
 
       <div class="mt-16">
         <div class="space-y-10 md:space-y-0 md:grid md:grid-cols-2 md:gap-x-8 md:gap-y-10">
-          <!-- Feature 1 -->
           <div class="flex" data-aos="fade-right" data-aos-delay="200">
             <div class="flex-shrink-0">
               <div class="flex items-center justify-center h-12 w-12 rounded-md bg-indigo-500 text-white">
@@ -283,7 +281,6 @@
               <p class="mt-2 text-base text-gray-600">질문이 바로 해결되는 밀착 수업으로 학습 효율을 끌어올립니다.</p>
             </div>
           </div>
-          <!-- Feature 2 -->
           <div class="flex" data-aos="fade-left" data-aos-delay="400">
             <div class="flex-shrink-0">
               <div class="flex items-center justify-center h-12 w-12 rounded-md bg-indigo-500 text-white">
@@ -295,7 +292,6 @@
               <p class="mt-2 text-base text-gray-600">학습 진도·과제 현황을 정기 리포트로 공유해 신뢰를 높입니다.</p>
             </div>
           </div>
-          <!-- Feature 3 -->
           <div class="flex" data-aos="fade-right" data-aos-delay="600">
             <div class="flex-shrink-0">
               <div class="flex items-center justify-center h-12 w-12 rounded-md bg-indigo-500 text-white">
@@ -307,7 +303,6 @@
               <p class="mt-2 text-base text-gray-600">실제로 작동하는 결과물로 이해를 공고히 하고 포트폴리오를 만듭니다.</p>
             </div>
           </div>
-          <!-- Feature 4 -->
           <div class="flex" data-aos="fade-left" data-aos-delay="800">
             <div class="flex-shrink-0">
               <div class="flex items-center justify-center h-12 w-12 rounded-md bg-indigo-500 text-white">
@@ -652,8 +647,19 @@
       }
     };
 
-    // === API base (Apps Script Web App URL) ===
-    const API_BASE = "https://script.google.com/macros/s/AKfycbwh3BgU60qpUXvWM9oD97G-ynVaRI49PbjzMvHi9gCdV3wvfTOzD2JdXM31xYjtBa1U/exec"; // <-- 여기를 네 URL로 교체
+    // === API base ===
+    const API_BASE = "https://script.google.com/macros/s/AKfycbzN4tIbtq399pnhcIcv7U1GLIISXdXjQHG9NZT3nJ-pvnwDTLKX1Dt4OgXzPpkecaA5/exec"; // 네 실제 /exec
+    // 리다이렉트 최종 URL 캐시 (googleusercontent.com)
+    let API_POST = API_BASE;
+    async function resolveApiPostUrl(){
+      try {
+        const ping = await fetch(API_BASE, { method:'GET', redirect:'follow' });
+        if (ping.redirected) API_POST = ping.url;
+      } catch(e) {
+        console.warn('API URL 확인 실패:', e);
+      }
+    }
+    document.addEventListener('DOMContentLoaded', resolveApiPostUrl);
 
     // reserved cache: { 'YYYY-MM-DD': ['HH:MM', ...] }
     let reservedCache = {};
@@ -741,10 +747,11 @@
     async function loadReserved(teacher, fromYmd, toYmd){
       const url = `${API_BASE}?mode=reserved&teacher=${encodeURIComponent(teacher)}&from=${fromYmd}&to=${toYmd}`;
       try{
-        const res = await fetch(url);
+        const res = await fetch(url); // GET은 자동 follow
         const data = await res.json();
         reservedCache = data.ok ? (data.reserved || {}) : {};
       }catch(e){
+        console.error('reserved 로드 실패', e);
         reservedCache = {}; // fail-open
       }
     }
@@ -974,7 +981,7 @@ END:VCALENDAR`;
       calCursor.setMonth(calCursor.getMonth()+1); await renderCalendar();
     });
 
-    // Submit booking (save to Apps Script / Sheets)
+    // Submit booking (save to Apps Script / Sheets) - 프리플라이트 회피 + 리다이렉트 해결
     document.getElementById('booking-form').addEventListener('submit', async (e)=>{
       e.preventDefault();
       if(!state.date || !state.time){ alert('날짜/시간을 선택해 주세요.'); return; }
@@ -991,12 +998,26 @@ END:VCALENDAR`;
         notes: document.getElementById('input-notes').value.trim()
       };
 
-      let data = {ok:false}; let resStatus = 500;
+      let data = {ok:false}; let resStatus = 0;
       try{
-        const res = await fetch(API_BASE, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+        const res = await fetch(API_POST, {
+          method:'POST',
+          headers:{ 'Content-Type':'text/plain;charset=utf-8' }, // ★ 프리플라이트 방지
+          body: JSON.stringify(payload),
+          redirect: 'follow'
+        });
         resStatus = res.status;
-        data = await res.json();
-      }catch(_){ data = {ok:false}; }
+        try { data = await res.json(); }
+        catch {
+          const txt = await res.text();
+          console.error('서버 응답(JSON 아님):', txt);
+          data = { ok:false, _raw: txt };
+        }
+      }catch(err){
+        console.error('fetch 실패', err);
+        alert('네트워크 오류로 예약을 저장하지 못했습니다.');
+        return;
+      }
 
       if (resStatus === 409 || data.error === 'CONFLICT') {
         alert('방금 다른 예약이 들어와서 이 시간은 마감되었습니다. 다시 선택해 주세요.');
@@ -1005,8 +1026,13 @@ END:VCALENDAR`;
         renderSlots(state.date);
         return;
       }
-      if (!data.ok) { alert('예약 저장 중 오류가 발생했습니다.'); return; }
+      if (!data.ok) {
+        console.error('예약 실패 디버그:', { status: resStatus, data });
+        alert(`예약 저장 중 오류가 발생했습니다\n(status: ${resStatus})`);
+        return;
+      }
 
+      // Crisp로 알림 전송(있으면)
       try{
         if(window.$crisp){
           const msg = `[예약요청]\n학생: ${payload.name} (${payload.grade})\n연락처: ${payload.phone}\n프로그램: ${payload.program}\n강사: ${payload.teacher}\n일시: ${fmtDate(state.date)} ${state.time}\n요청: ${payload.notes || '-'}`;
