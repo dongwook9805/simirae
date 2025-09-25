@@ -647,19 +647,8 @@
       }
     };
 
-    // === API base ===
-    const API_BASE = "https://script.google.com/macros/s/AKfycbzN4tIbtq399pnhcIcv7U1GLIISXdXjQHG9NZT3nJ-pvnwDTLKX1Dt4OgXzPpkecaA5/exec"; // 네 실제 /exec
-    // 리다이렉트 최종 URL 캐시 (googleusercontent.com)
-    let API_POST = API_BASE;
-    async function resolveApiPostUrl(){
-      try {
-        const ping = await fetch(API_BASE, { method:'GET', redirect:'follow' });
-        if (ping.redirected) API_POST = ping.url;
-      } catch(e) {
-        console.warn('API URL 확인 실패:', e);
-      }
-    }
-    document.addEventListener('DOMContentLoaded', resolveApiPostUrl);
+    // === API base (Cloudflare Worker Proxy) ===
+    const API_BASE = "https://booking-proxy.donguk9805.workers.dev";
 
     // reserved cache: { 'YYYY-MM-DD': ['HH:MM', ...] }
     let reservedCache = {};
@@ -743,11 +732,11 @@
       return t>=s && t<=e;
     }
 
-    // Fetch reserved slots for teacher in range
+    // Fetch reserved slots for teacher in range (via Worker)
     async function loadReserved(teacher, fromYmd, toYmd){
       const url = `${API_BASE}?mode=reserved&teacher=${encodeURIComponent(teacher)}&from=${fromYmd}&to=${toYmd}`;
       try{
-        const res = await fetch(url); // GET은 자동 follow
+        const res = await fetch(url);
         const data = await res.json();
         reservedCache = data.ok ? (data.reserved || {}) : {};
       }catch(e){
@@ -981,7 +970,7 @@ END:VCALENDAR`;
       calCursor.setMonth(calCursor.getMonth()+1); await renderCalendar();
     });
 
-    // Submit booking (save to Apps Script / Sheets) - 프리플라이트 회피 + 리다이렉트 해결
+    // Submit booking (save via Worker → Apps Script)
     document.getElementById('booking-form').addEventListener('submit', async (e)=>{
       e.preventDefault();
       if(!state.date || !state.time){ alert('날짜/시간을 선택해 주세요.'); return; }
@@ -998,21 +987,16 @@ END:VCALENDAR`;
         notes: document.getElementById('input-notes').value.trim()
       };
 
-      let data = {ok:false}; let resStatus = 0;
+      let data = {ok:false};
+      let resStatus = 0;
       try{
-        const res = await fetch(API_POST, {
+        const res = await fetch(API_BASE, {
           method:'POST',
-          headers:{ 'Content-Type':'text/plain;charset=utf-8' }, // ★ 프리플라이트 방지
-          body: JSON.stringify(payload),
-          redirect: 'follow'
+          headers:{ 'Content-Type':'application/json' },
+          body: JSON.stringify(payload)
         });
         resStatus = res.status;
-        try { data = await res.json(); }
-        catch {
-          const txt = await res.text();
-          console.error('서버 응답(JSON 아님):', txt);
-          data = { ok:false, _raw: txt };
-        }
+        data = await res.json();
       }catch(err){
         console.error('fetch 실패', err);
         alert('네트워크 오류로 예약을 저장하지 못했습니다.');
@@ -1027,7 +1011,7 @@ END:VCALENDAR`;
         return;
       }
       if (!data.ok) {
-        console.error('예약 실패 디버그:', { status: resStatus, data });
+        console.error('예약 실패:', { status: resStatus, data });
         alert(`예약 저장 중 오류가 발생했습니다\n(status: ${resStatus})`);
         return;
       }
