@@ -182,7 +182,7 @@
                 학습 몰입도와 만족도를 높입니다.
               </p>
               <div class="mt-4 flex flex-wrap gap-2 text-xs font-medium">
-                <span class="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-white/80 px-3 py-1 text-emerald-600"><i data-feather="sparkles" class="h-3.5 w-3.5"></i>맞춤 설명 & 오류 분석</span>
+                <span class="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-white/80 px-3 py-1 text-emerald-600"><i data-feather="zap" class="h-3.5 w-3.5"></i>맞춤 설명 & 오류 분석</span>
                 <span class="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-white/80 px-3 py-1 text-emerald-600"><i data-feather="bar-chart-2" class="h-3.5 w-3.5"></i>학부모 리포트 강화</span>
                 <span class="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-white/80 px-3 py-1 text-emerald-600"><i data-feather="tablet" class="h-3.5 w-3.5"></i>정부지원 태블릿 제공</span>
               </div>
@@ -927,11 +927,11 @@
       document.querySelectorAll('.step-item').forEach((el, idx) => {
         const badge = el.querySelector('.step-badge');
         if (idx + 1 <= step) {
-          badge.classList.remove('bg-white/10', 'text-slate-600');
-          badge.classList.add('bg-indigo-500', 'text-slate-900');
+          badge.classList.remove('bg-slate-100', 'text-slate-600');
+          badge.classList.add('bg-indigo-500', 'text-white');
         } else {
-          badge.classList.add('bg-white/10', 'text-slate-600');
-          badge.classList.remove('bg-indigo-500', 'text-slate-900');
+          badge.classList.add('bg-slate-100', 'text-slate-600');
+          badge.classList.remove('bg-indigo-500', 'text-white');
         }
       });
       feather.replace();
