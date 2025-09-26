@@ -1,0 +1,84 @@
+// === Cloudflare Worker (CORS + Redirect + POST 유지) ===
+const TARGET = 'https://script.google.com/macros/s/AKfycbzN4tIbtq399pnhcIcv7U1GLIISXdXjQHG9NZT3nJ-pvnwDTLKX1Dt4OgXzPpkecaA5/exec';
+const ALLOW_ORIGINS = [
+  'https://www.swmirae.ai.kr',
+  'https://swmirae.ai.kr',
+  'http://localhost:5173',   // 로컬 개발 시 필요하면 유지
+];
+
+function corsHeaders(origin) {
+  return {
+    'Access-Control-Allow-Origin': origin,
+    'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Max-Age': '86400',
+    'Vary': 'Origin',
+    'Cache-Control': 'no-store'
+  };
+}
+
+export default {
+  async fetch(req) {
+    const origin = req.headers.get('Origin') || '';
+    const allowed = ALLOW_ORIGINS.includes(origin);
+
+    // Preflight
+    if (req.method === 'OPTIONS') {
+      if (!allowed && origin) {
+        return new Response('Origin not allowed', { status: 403, headers: corsHeaders('*') });
+      }
+      return new Response(null, { status: 204, headers: corsHeaders(allowed ? origin : '*') });
+    }
+
+    // 웹에서 직접 열어보는 경우도 있으니 GET은 Origin 없어도 허용.
+    if (origin && !allowed) {
+      return new Response('Origin not allowed', { status: 403, headers: corsHeaders('*') });
+    }
+
+    // /exec 의 쿼리스트링 그대로 전달
+    const inUrl = new URL(req.url);
+    const outUrl = new URL(TARGET);
+    outUrl.search = inUrl.search; // ?mode=...&teacher=... 그대로 유지
+
+    // 바디 그대로 전달 (GET/HEAD는 바디 없음)
+    const init = {
+      method: req.method,
+      headers: { 'Content-Type': req.headers.get('Content-Type') || 'text/plain;charset=utf-8' },
+      body: ['GET','HEAD'].includes(req.method) ? undefined : await req.text(),
+      redirect: 'follow', // 302 → 최종 googleusercontent까지 따라감
+    };
+
+    try {
+      const resp = await fetch(outUrl.toString(), init);
+      const headers = new Headers(resp.headers);
+      headers.set('Access-Control-Allow-Origin', origin || '*');
+      headers.set('Vary', 'Origin');
+      headers.set('Cache-Control', 'no-store');
+
+      const contentType = headers.get('Content-Type') || headers.get('content-type') || '';
+      let status = resp.status;
+
+      if (contentType.includes('application/json')) {
+        const text = await resp.text();
+        try {
+          const data = JSON.parse(text);
+          if (data && data.error === 'CONFLICT') {
+            status = 409;
+          }
+        } catch (_) {
+          // JSON 파싱 실패 시 원본 상태 유지
+        }
+        headers.set('Content-Type', 'application/json; charset=utf-8');
+        return new Response(text, { status, statusText: resp.statusText, headers });
+      }
+
+      const buf = await resp.arrayBuffer();
+      return new Response(buf, { status, statusText: resp.statusText, headers });
+    } catch (err) {
+      const h = corsHeaders(origin || '*');
+      return new Response(JSON.stringify({ ok:false, error:'proxy_fetch_failed', message: String(err) }), {
+        status: 502, headers: { ...h, 'Content-Type': 'application/json' }
+      });
+    }
+  }
+}

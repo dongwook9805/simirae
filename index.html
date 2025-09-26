@@ -1174,7 +1174,16 @@
           body: JSON.stringify(payload),
         });
         status = res.status;
-        data = await res.json();
+        const text = await res.text();
+        if (text) {
+          try {
+            data = JSON.parse(text);
+          } catch (_) {
+            data = { ok: false, error: 'PARSE_ERROR', raw: text };
+          }
+        } else if (res.ok) {
+          data = { ok: true };
+        }
       } catch (err) {
         console.error('fetch 실패', err);
         alert('네트워크 오류로 예약을 저장하지 못했습니다.');
@@ -1183,8 +1192,13 @@
       }
 
       if (!data || !data.ok) {
-        if (data && data.error === 'CONFLICT') {
-          alert('방금 다른 예약이 들어와 이 시간은 마감되었습니다. 다른 시간을 선택해 주세요.');
+        if (data && (data.error === 'CONFLICT' || status === 409)) {
+          const conflict = data.conflict || {};
+          const conflictMsg = conflict.date && conflict.time
+            ? `${conflict.date} ${conflict.time}`
+            : '해당 시간';
+          alert(`이미 ${conflictMsg}에 예약이 있습니다. 다른 시간을 선택해 주세요.`);
+          resetTimeSelection();
           const rng = monthRangeYmd(calCursor);
           await loadReserved(state.teacher, rng.from, rng.to);
           if (state.date) renderSlots(state.date);

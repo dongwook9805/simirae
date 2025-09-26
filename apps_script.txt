@@ -1,0 +1,187 @@
+const SHEET_NAME = 'reservations';
+const TZ = 'Asia/Seoul';
+const STATUS_ACTIVE = 'ACTIVE';
+const STATUS_CANCELLED = ['CANCELLED', 'CANCELED'];
+const HEADER_ROW = [
+  'timestamp','teacher','date','time','program','name','phone','grade','notes','status'
+];
+
+function _sheet() {
+  const ss = SpreadsheetApp.getActive();
+  const sh = ss.getSheetByName(SHEET_NAME) || ss.insertSheet(SHEET_NAME);
+  if (sh.getLastRow() === 0) {
+    sh.getRange(1, 1, 1, HEADER_ROW.length).setValues([HEADER_ROW]);
+  }
+  return sh;
+}
+
+function _json(o) {
+  return ContentService.createTextOutput(JSON.stringify(o))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function _normDateStr(s) {
+  if (!s) return '';
+  const t = String(s).trim().replace(/[./]/g, '-');
+  const m = t.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if (!m) return '';
+  const y = m[1], mo = ('0'+m[2]).slice(-2), d = ('0'+m[3]).slice(-2);
+  return `${y}-${mo}-${d}`;
+}
+
+function _normTimeStr(s) {
+  if (!s) return '';
+  const t = String(s).trim();
+  // 10:00, 10:00:00, 10시00분 등 혼용 방지
+  const m = t.match(/(\d{1,2})[:시](\d{1,2})/);
+  if (!m) {
+    // "10"만 오는 경우 10:00으로 간주
+    const m2 = t.match(/^(\d{1,2})$/);
+    if (m2) return ('0'+m2[1]).slice(-2) + ':00';
+    return '';
+  }
+  const hh = ('0'+m[1]).slice(-2), mm = ('0'+m[2]).slice(-2);
+  return `${hh}:${mm}`;
+}
+
+function _statusIsActive(status) {
+  const upper = String(status || '').trim().toUpperCase();
+  if (!upper) return true; // 비워두면 기본적으로 예약 진행중으로 간주
+  return STATUS_CANCELLED.indexOf(upper) === -1;
+}
+
+function _buildConflict(rowValues, rowIndex) {
+  const [
+    teacher,
+    date,
+    time,
+    program,
+    name,
+    phone,
+    grade,
+    notes,
+    status
+  ] = rowValues;
+  return {
+    teacher: String(teacher || '').trim(),
+    date: _normDateStr(date || ''),
+    time: _normTimeStr(time || ''),
+    program: String(program || '').trim(),
+    name: String(name || '').trim(),
+    phone: String(phone || '').trim(),
+    grade: String(grade || '').trim(),
+    status: String(status || '').trim(),
+    row: rowIndex,
+  };
+}
+
+function _findConflict(sh, teacher, dateStr, timeStr) {
+  const last = sh.getLastRow();
+  if (last <= 1) return null;
+
+  // B열~J열 (9개 필드) 표시값을 문자열로 읽어 비교한다.
+  const values = sh.getRange(2, 2, last - 1, 9).getDisplayValues();
+  for (let i = 0; i < values.length; i += 1) {
+    const row = values[i];
+    const tch = String(row[0] || '').trim();
+    const ymd = _normDateStr(row[1] || '');
+    const hhmm = _normTimeStr(row[2] || '');
+    const status = row[8];
+
+    if (!_statusIsActive(status)) continue;
+    if (!tch || !ymd || !hhmm) continue;
+    if (tch === teacher && ymd === dateStr && hhmm === timeStr) {
+      return _buildConflict(row, i + 2);
+    }
+  }
+  return null;
+}
+
+function doGet(e) {
+  const p = (e && e.parameter) || {};
+  const mode = (p.mode || 'alive').toLowerCase();
+
+  if (mode === 'alive') {
+    return _json({ ok: true, message: 'alive', ver: '2025-09-25/dispval' });
+  }
+
+  if (mode === 'reserved') {
+    const teacher = String(p.teacher || '').trim();
+    const from = _normDateStr(p.from || '');
+    const to = _normDateStr(p.to || '');
+
+    const sh = _sheet();
+    const last = sh.getLastRow();
+
+    // 표시 문자열 기준으로 안전하게 읽는다
+    const reserved = {};
+    if (last > 1) {
+      // B..J(9열) 표시값
+      const vals = sh.getRange(2, 2, last-1, 9).getDisplayValues();
+      for (let i = 0; i < vals.length; i++) {
+        const row = vals[i];
+        // 0:tch 1:date 2:time 8:status
+        const tch = String(row[0] || '').trim();
+        const ymd = _normDateStr(row[1] || '');
+        const hhmm = _normTimeStr(row[2] || '');
+        const status = String(row[8] || '').trim().toUpperCase();
+        if (!tch || !ymd || !hhmm) continue;
+        if (status === 'CANCELLED' || status === 'CANCELED') continue;
+        if (teacher && tch !== teacher) continue;
+        if (from && ymd < from) continue;
+        if (to && ymd > to) continue;
+        if (!reserved[ymd]) reserved[ymd] = [];
+        if (!reserved[ymd].includes(hhmm)) reserved[ymd].push(hhmm);
+      }
+    }
+    return _json({ ok: true, reserved, ver: '2025-09-25/dispval' });
+  }
+
+  return _json({ ok: false, error: 'UNKNOWN_MODE' });
+}
+
+function doPost(e) {
+  const lock = LockService.getScriptLock();
+  try {
+    if (!e || !e.postData || !e.postData.contents) {
+      return _json({ ok:false, error:'NO_BODY' });
+    }
+    const body = JSON.parse(e.postData.contents || '{}');
+    if ((body.mode || '').toLowerCase() !== 'reserve') {
+      return _json({ ok:false, error:'BAD_MODE' });
+    }
+
+    const teacher = String(body.teacher || '').trim();
+    const program = String(body.program || '').trim();
+    const name    = String(body.name || '').trim();
+    const phone   = String(body.phone || '').trim();
+    const grade   = String(body.grade || '').trim();
+    const notes   = String(body.notes || '').trim();
+    const dateStr = _normDateStr(body.date);
+    const timeStr = _normTimeStr(body.time);
+
+    if (!teacher || !program || !name || !phone || !dateStr || !timeStr) {
+      return _json({ ok:false, error:'REQUIRED_MISSING' });
+    }
+
+    // 읽기~쓰기 전체 구간 잠금
+    lock.waitLock(30000);
+
+    const sh = _sheet();
+    const conflict = _findConflict(sh, teacher, dateStr, timeStr);
+    if (conflict) {
+      return _json({ ok:false, error:'CONFLICT', message:'이미 예약된 시간입니다.', conflict });
+    }
+
+    // 저장
+    const ts = Utilities.formatDate(new Date(), TZ, 'yyyy-MM-dd HH:mm:ss');
+    // date, time은 문자열로 박아두면 나중 비교가 더 쉬움
+    sh.appendRow([ts, teacher, dateStr, timeStr, program, name, phone, grade, notes, STATUS_ACTIVE]);
+
+    return _json({ ok:true, reservation: { teacher, date: dateStr, time: timeStr } });
+  } catch (err) {
+    return _json({ ok:false, error:'SERVER_ERROR', message:String(err) });
+  } finally {
+    try { lock.releaseLock(); } catch(_) {}
+  }
+}
