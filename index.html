@@ -645,10 +645,14 @@
                   <div id="month-label" class="text-base font-semibold text-white">YYYY년 MM월</div>
                   <button id="next-month" class="rounded-lg p-2 text-slate-300 hover:bg-white/10" aria-label="다음 달"><i data-feather="chevron-right"></i></button>
                 </div>
-                <div class="grid grid-cols-7 gap-1 text-center text-xs uppercase tracking-wide text-slate-400">
-                  <span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span>
+                <div class="-mx-2 overflow-x-auto pb-2 sm:mx-0">
+                  <div class="mx-2 min-w-[320px] sm:mx-0">
+                    <div class="grid grid-cols-7 gap-1 text-center text-xs uppercase tracking-wide text-slate-400">
+                      <span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span>
+                    </div>
+                    <div id="calendar-grid" class="mt-2 grid grid-cols-7 gap-1 text-sm"></div>
+                  </div>
                 </div>
-                <div id="calendar-grid" class="mt-2 grid grid-cols-7 gap-1 text-sm"></div>
               </div>
               <div class="flex flex-col gap-4 rounded-xl border border-white/10 bg-white/5 p-4">
                 <div>
