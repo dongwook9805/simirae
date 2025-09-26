@@ -654,7 +654,7 @@
                   </div>
                 </div>
               </div>
-              <div class="flex flex-col gap-4 rounded-xl border border-white/10 bg-white/5 p-4">
+              <div id="slot-pane" class="flex flex-col gap-4 rounded-xl border border-white/10 bg-white/5 p-4">
                 <div>
                   <p class="text-xs uppercase tracking-wider text-slate-400">선택한 날짜</p>
                   <p id="selected-date-label" class="mt-2 text-base font-semibold text-white">-</p>
@@ -848,6 +848,19 @@
     const WEEKDAY_SLOTS = Array.from({ length: WEEKDAY_END_HOUR - WEEKDAY_START_HOUR + 1 }, (_, idx) => `${pad(WEEKDAY_START_HOUR + idx)}:00`);
 
     const isWeekend = (dt) => WEEKEND_DAYS.has(dt.getDay());
+    const isSmallScreen = () => window.matchMedia('(max-width: 768px)').matches;
+    function scrollSlotPaneOnMobile() {
+      if (!isSmallScreen()) return;
+      const pane = document.getElementById('slot-pane');
+      if (!pane) return;
+      setTimeout(() => pane.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
+    }
+    function focusStep3OnMobile() {
+      if (!isSmallScreen()) return;
+      const formEl = document.getElementById('booking-form');
+      if (!formEl) return;
+      setTimeout(() => formEl.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
+    }
 
     function toast(msg = '완료되었습니다') {
       const t = document.getElementById('toast');
@@ -1031,6 +1044,7 @@
             renderSlots(dt);
             grid.querySelectorAll('button').forEach((b) => b.classList.remove('ring-2', 'ring-indigo-400'));
             btn.classList.add('ring-2', 'ring-indigo-400');
+            scrollSlotPaneOnMobile();
           });
         }
         grid.appendChild(btn);
@@ -1104,6 +1118,14 @@
             document.getElementById('to-step-3').disabled = false;
             group.querySelectorAll('button').forEach((x) => x.classList.remove('border-indigo-400', 'bg-indigo-500/20'));
             b.classList.add('border-indigo-400', 'bg-indigo-500/20');
+            if (isSmallScreen()) {
+              openStep3(true);
+            } else {
+              const proceedBtn = document.getElementById('to-step-3');
+              if (proceedBtn) {
+                setTimeout(() => proceedBtn.scrollIntoView({ behavior: 'smooth', block: 'center' }), 80);
+              }
+            }
           });
         }
         group.appendChild(b);
@@ -1164,7 +1186,7 @@
       if (step3Visible) setStep(2); else setStep(1);
     }));
 
-    document.getElementById('to-step-3').addEventListener('click', () => {
+    function openStep3(auto = false) {
       if (!state.date || !state.time) return;
       setStep(3);
       renderSummary();
@@ -1175,7 +1197,10 @@
       const gUrl = buildGCalURL(summary, details, loc, state.date, state.time, state.durationMin);
       const icsA = document.getElementById('ics-link'); icsA.href = icsUrl; icsA.classList.remove('hidden');
       const gA = document.getElementById('gcal-link'); gA.href = gUrl; gA.classList.remove('hidden');
-    });
+      if (auto) focusStep3OnMobile();
+    }
+
+    document.getElementById('to-step-3').addEventListener('click', () => openStep3(false));
 
     document.getElementById('program-select').addEventListener('change', (e) => {
       state.program = e.target.value;
