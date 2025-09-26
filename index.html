@@ -465,7 +465,7 @@
                 </div>
                 <div class="rounded-2xl border border-white/10 bg-white/5 px-4 py-4">
                   <dt class="text-slate-400">운영 시간</dt>
-                  <dd class="mt-2 text-base font-semibold text-white">평일 13:00-22:00<br/>토요일 10:00-18:00</dd>
+                  <dd class="mt-2 text-base font-semibold text-white">평일 13:00-22:00 (1시간 단위)<br/>주말 채팅 상담 전용</dd>
                 </div>
                 <div class="rounded-2xl border border-white/10 bg-white/5 px-4 py-4">
                   <dt class="text-slate-400">문의</dt>
@@ -503,6 +503,7 @@
             <p class="text-sm uppercase tracking-[0.3em] text-indigo-200">Experience</p>
             <h2 class="mt-6 text-3xl font-semibold text-white sm:text-4xl">지금, 아이의 첫 프로젝트를 함께 설계해 보세요</h2>
             <p class="mt-4 text-base text-indigo-100">무료 체험 수업에서 수준 진단, 커리큘럼 제안, 학습 플래너 체험까지 한 번에 진행됩니다.</p>
+            <p class="mt-2 text-sm text-indigo-100/80">평일 13:00~22:00 사이에 1시간 단위로 예약 가능하며, 주말에는 채팅으로 빠르게 연결해 드립니다.</p>
             <div class="mt-10 flex flex-wrap justify-center gap-4">
               <button class="open-booking inline-flex items-center gap-3 rounded-full bg-white px-6 py-3 text-base font-semibold text-slate-900 transition hover:bg-slate-100">
                 <i data-feather="calendar" class="h-5 w-5"></i>
@@ -546,7 +547,8 @@
           <h3 class="text-sm font-semibold uppercase tracking-wider text-slate-300">학원 정보</h3>
           <ul class="mt-4 space-y-3 text-sm text-slate-400">
             <li><a href="https://naver.me/xoHigSrx" target="_blank" rel="noopener" class="hover:text-white">오시는 길</a></li>
-            <li><span>운영 시간: 평일 13:00-22:00 / 토요일 10:00-18:00</span></li>
+            <li><span>운영 시간: 평일 13:00-22:00 (1시간 단위 예약)</span></li>
+            <li><span>주말: 채팅 상담 전용</span></li>
             <li><span>학원 소개 · 교육 철학</span></li>
           </ul>
         </div>
@@ -652,14 +654,27 @@
                 <div>
                   <p class="text-xs uppercase tracking-wider text-slate-400">선택한 날짜</p>
                   <p id="selected-date-label" class="mt-2 text-base font-semibold text-white">-</p>
+                  <p id="selected-date-hint" class="mt-1 text-xs text-slate-400">평일을 선택하면 예약 가능한 시간이 표시됩니다.</p>
                 </div>
                 <div>
                   <p class="text-xs uppercase tracking-wider text-slate-400">가능한 시작 시간</p>
                   <div id="slot-container" class="mt-3 text-sm text-slate-300">날짜를 먼저 선택해주세요.</div>
                 </div>
-                <div class="flex flex-col gap-3 rounded-lg border border-white/10 bg-slate-900/60 p-4 text-xs text-slate-400">
-                  <div class="flex items-center gap-2"><i data-feather="info" class="h-4 w-4"></i> 동일 강사의 예약이 중복될 경우, 선착순으로 확정됩니다.</div>
-                  <div>예약 후 채팅으로 확정 안내를 드립니다.</div>
+                <div class="space-y-3 rounded-lg border border-white/10 bg-slate-900/60 p-4 text-sm text-slate-300">
+                  <div class="flex items-center gap-2 text-slate-200">
+                    <i data-feather="clock" class="h-4 w-4"></i>
+                    평일 상담 가능: 13:00 ~ 22:00 (1시간 간격)
+                  </div>
+                  <p>가장 늦은 시작 시간은 21:00이며, 방문 상담은 평일에만 예약받고 있어요.</p>
+                  <div class="rounded-lg border border-sky-400/30 bg-sky-500/10 p-3 text-sky-100">
+                    <p class="font-semibold">주말에는 채팅 상담만 운영합니다.</p>
+                    <p class="mt-1 text-xs text-sky-100/90">주말 문의는 아래 버튼을 눌러 바로 연결해 주세요.</p>
+                    <button class="open-chat mt-3 inline-flex items-center gap-2 rounded-full border border-sky-300/60 px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-sky-50 hover:border-sky-200 hover:bg-sky-400/30">주말 채팅 상담</button>
+                  </div>
+                  <div class="flex items-center gap-2 text-xs text-slate-400">
+                    <i data-feather="info" class="h-4 w-4"></i>
+                    예약 접수 후 채팅으로 확정 안내를 드립니다.
+                  </div>
                 </div>
                 <div class="flex flex-wrap items-center justify-between gap-3">
                   <button class="k-pressable inline-flex items-center gap-2 rounded-lg border border-white/15 px-4 py-2 text-sm text-slate-200 hover:bg-white/10" data-back>
@@ -794,15 +809,17 @@
       d.getElementsByTagName("head")[0].appendChild(s);
     })();
     window.$crisp.push(["set", "locale", "ko"]);
-    function bindChatOpener() {
-      document.querySelectorAll('.open-chat').forEach((a) => {
-        a.addEventListener('click', (e) => {
-          e.preventDefault();
-          if (window.$crisp) { $crisp.push(["do", "chat:open"]); }
-        });
-      });
+    function openChatWidget() {
+      if (window.$crisp) {
+        $crisp.push(["do", "chat:open"]);
+      }
     }
-    document.addEventListener('DOMContentLoaded', bindChatOpener);
+    document.addEventListener('click', (event) => {
+      const trigger = event.target.closest('.open-chat');
+      if (!trigger) return;
+      event.preventDefault();
+      openChatWidget();
+    });
 
     // ===== 예약 모달 =====
     const state = {
@@ -813,11 +830,6 @@
       rangeDays: 45,
       durationMin: 60,
     };
-    const availability = {
-      "허지연 원장": { 1: ['16:00','17:00'], 3: ['16:00','17:30'], 5: ['14:00','15:30','17:00'], 6: ['10:00','11:30'] },
-      "이동욱 강사": { 2: ['19:00','20:00'], 4: ['19:00','20:00'], 6: ['13:00','15:00','17:00'] }
-    };
-
     const API_BASE = "https://booking-proxy.donguk9805.workers.dev";
     let reservedCache = {};
 
@@ -825,6 +837,13 @@
     const dayK = (d) => ['일','월','화','수','목','금','토'][d];
     const fmtDate = (dt) => `${dt.getFullYear()}년 ${pad(dt.getMonth()+1)}월 ${pad(dt.getDate())}일 (${dayK(dt.getDay())})`;
     const ymd = (dt) => `${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())}`;
+
+    const WEEKEND_DAYS = new Set([0, 6]);
+    const WEEKDAY_START_HOUR = 13;
+    const WEEKDAY_END_HOUR = 21; // 21:00 시작 → 22:00 종료
+    const WEEKDAY_SLOTS = Array.from({ length: WEEKDAY_END_HOUR - WEEKDAY_START_HOUR + 1 }, (_, idx) => `${pad(WEEKDAY_START_HOUR + idx)}:00`);
+
+    const isWeekend = (dt) => WEEKEND_DAYS.has(dt.getDay());
 
     function toast(msg = '완료되었습니다') {
       const t = document.getElementById('toast');
@@ -926,11 +945,10 @@
     }
 
     function getSlotsForDate(dt) {
-      const teacherMap = availability[state.teacher] || {};
-      const base = teacherMap[dt.getDay()] || [];
+      if (isWeekend(dt)) return [];
       const key = ymd(dt);
       const reserved = reservedCache[key] || [];
-      return base.filter((t) => !reserved.includes(t));
+      return WEEKDAY_SLOTS.filter((t) => !reserved.includes(t));
     }
 
     function resetTimeSelection() {
@@ -939,6 +957,12 @@
       document.getElementById('summary-title').textContent = `${state.program} · ${state.teacher}`;
       const stepBtn = document.getElementById('to-step-3');
       if (stepBtn) stepBtn.disabled = true;
+      const hintEl = document.getElementById('selected-date-hint');
+      if (hintEl) {
+        hintEl.classList.remove('text-sky-200', 'text-slate-400');
+        hintEl.classList.add('text-slate-400');
+        hintEl.textContent = '평일을 선택하면 예약 가능한 시간이 표시됩니다.';
+      }
     }
 
     let calCursor = new Date(); calCursor.setDate(1);
@@ -963,24 +987,39 @@
       for (let d = 1; d <= lastDate; d += 1) {
         const dt = new Date(calCursor.getFullYear(), calCursor.getMonth(), d);
         const inWin = inRange(dt);
+        const weekend = isWeekend(dt);
         const slots = inWin ? getSlotsForDate(dt) : [];
-        const level = slots.length >= 3 ? 'easy' : slots.length === 2 ? 'mid' : slots.length === 1 ? 'tight' : 'none';
+        let level = 'none';
+        if (inWin) {
+          if (weekend) level = 'chat';
+          else if (slots.length >= 6) level = 'easy';
+          else if (slots.length >= 3) level = 'mid';
+          else if (slots.length >= 1) level = 'tight';
+        }
 
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'relative flex h-16 flex-col items-center justify-center rounded-lg border border-white/5 bg-white/5 text-sm transition hover:border-white/20 hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-indigo-400';
-        btn.disabled = !inWin || level === 'none';
+        btn.disabled = !inWin;
         btn.innerHTML = `
           <span class="text-xs ${btn.disabled ? 'text-slate-500' : 'text-white'}">${d}</span>
           <span class="mt-2 h-1 w-8 rounded-full ${
             level === 'easy' ? 'bg-emerald-400/80' :
             level === 'mid' ? 'bg-amber-400/80' :
-            level === 'tight' ? 'bg-rose-400/80' : 'bg-slate-600'
+            level === 'tight' ? 'bg-rose-400/80' :
+            level === 'chat' ? 'bg-sky-400/80' : 'bg-slate-600'
           }"></span>
+          ${level === 'chat' ? '<span class="mt-1 text-[10px] font-semibold uppercase tracking-wide text-sky-300">Chat</span>' : ''}
         `;
-        if (btn.disabled) {
-          btn.classList.add('cursor-not-allowed', 'opacity-40');
+        if (!inWin) {
+          btn.classList.add('cursor-not-allowed', 'opacity-30');
         } else {
+          if (level === 'none') {
+            btn.classList.add('opacity-60');
+          }
+          if (level === 'chat') {
+            btn.classList.add('border-sky-400/40', 'bg-sky-500/10');
+          }
           btn.addEventListener('click', () => {
             state.date = dt;
             resetTimeSelection();
@@ -998,10 +1037,42 @@
       const wrap = document.getElementById('slot-container');
       wrap.innerHTML = '';
       const slots = getSlotsForDate(dt);
+      const weekend = isWeekend(dt);
+      const hintEl = document.getElementById('selected-date-hint');
+      document.getElementById('sum-date').textContent = fmtDate(dt);
       if (!slots.length) {
-        wrap.innerHTML = '<p class="text-sm text-slate-400">이 날짜는 가능한 시간이 없습니다.</p>';
         resetTimeSelection();
+        if (hintEl) {
+          hintEl.classList.remove('text-sky-200', 'text-slate-400');
+          hintEl.classList.add(weekend ? 'text-sky-200' : 'text-slate-400');
+          hintEl.textContent = weekend
+            ? '주말에는 채팅 상담만 운영합니다.'
+            : '다른 날짜나 시간을 선택해 주세요.';
+        }
+        if (weekend) {
+          wrap.innerHTML = `
+            <div class="rounded-xl border border-sky-400/30 bg-sky-500/10 p-4 text-sm text-slate-200">
+              <p class="text-base font-semibold text-white">주말에는 채팅으로 상담을 도와드려요</p>
+              <p class="mt-2 text-slate-300">평일 예약을 원하시면 날짜를 변경해 주세요. 급한 문의는 채팅으로 바로 연결해 드립니다.</p>
+              <button class="open-chat mt-4 inline-flex items-center gap-2 rounded-full border border-sky-400/40 bg-sky-500/20 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-sky-100 hover:border-sky-300 hover:bg-sky-400/30">채팅으로 상담하기</button>
+            </div>
+          `;
+        } else {
+          wrap.innerHTML = `
+            <div class="rounded-xl border border-white/10 bg-white/5 p-4 text-sm text-slate-300">
+              <p class="text-base font-semibold text-white">이미 예약이 가득 찼어요</p>
+              <p class="mt-2">다른 날짜나 시간을 선택해 주세요. 필요하시면 채팅으로 빠르게 안내해 드립니다.</p>
+              <button class="open-chat mt-3 inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white hover:border-sky-400/60 hover:bg-sky-500/20">채팅 상담 연결</button>
+            </div>
+          `;
+        }
         return;
+      }
+
+      if (hintEl) {
+        hintEl.classList.remove('text-sky-200', 'text-slate-400');
+        hintEl.classList.add('text-slate-400');
+        hintEl.textContent = '아래에서 원하는 시간을 선택하세요.';
       }
 
       const now = new Date();
