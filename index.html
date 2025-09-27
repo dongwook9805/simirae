@@ -1194,7 +1194,9 @@
       calCursor = new Date(); calCursor.setDate(1);
       await renderCalendar();
       document.getElementById('selected-date-label').textContent = '-';
-      document.getElementById('slot-container').innerHTML = '<p class="text-sm text-slate-400">날짜를 먼저 선택해주세요.</p>';
+      const slotReset = document.getElementById('slot-container');
+      slotReset.className = 'grid grid-cols-1 gap-2 text-sm text-slate-600 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4';
+      slotReset.innerHTML = '<p class="col-span-full rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-3 text-center text-xs text-slate-500">날짜를 먼저 선택해주세요.</p>';
       resetTimeSelection();
     });
 
@@ -1233,7 +1235,9 @@
       resetTimeSelection();
       document.getElementById('sum-date').textContent = '-';
       document.getElementById('selected-date-label').textContent = '-';
-      document.getElementById('slot-container').innerHTML = '<p class="text-sm text-slate-400">날짜를 먼저 선택해주세요.</p>';
+      const slotPane = document.getElementById('slot-container');
+      slotPane.className = 'grid grid-cols-1 gap-2 text-sm text-slate-600 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4';
+      slotPane.innerHTML = '<p class="col-span-full rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-3 text-center text-xs text-slate-500">날짜를 먼저 선택해주세요.</p>';
       if (!document.getElementById('step-2').classList.contains('hidden')) {
         await renderCalendar();
       }
