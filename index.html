@@ -125,6 +125,24 @@
       border-top: 1px solid rgba(148, 163, 184, 0.25);
       padding-top: 1.25rem;
     }
+    .time-slot-grid {
+      display: grid;
+      gap: 0.5rem;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      align-items: stretch;
+    }
+    @media (min-width: 640px) {
+      .time-slot-grid {
+        gap: 0.65rem;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      }
+    }
+    @media (min-width: 1024px) {
+      .time-slot-grid {
+        gap: 0.75rem;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      }
+    }
   </style>
 </head>
 <body class="text-slate-800 antialiased">
@@ -1149,7 +1167,7 @@
                     </button>
                   </div>
                   <p id="selected-date-hint" class="text-xs text-slate-400">평일을 선택하면 예약 가능한 시간이 표시됩니다.</p>
-                  <div id="slot-container" class="grid grid-cols-1 gap-2 text-sm text-slate-600 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+                  <div id="slot-container" class="time-slot-grid text-sm text-slate-600">
                     <p class="col-span-full rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-3 text-center text-xs text-slate-500">날짜를 먼저 선택해주세요.</p>
                   </div>
                   <div class="flex flex-col gap-3 rounded-xl bg-slate-50 px-4 py-3 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
@@ -1657,7 +1675,7 @@
     function renderSlots(dt) {
       const wrap = document.getElementById('slot-container');
       wrap.innerHTML = '';
-      wrap.className = 'grid grid-cols-1 gap-2 text-sm text-slate-600 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5';
+      wrap.className = 'time-slot-grid text-sm text-slate-600';
       const slots = getSlotsForDate(dt);
       const weekend = isWeekend(dt);
       const hintEl = document.getElementById('selected-date-hint');
@@ -1709,6 +1727,7 @@
         b.type = 'button';
         b.className = 'w-full rounded-lg border border-slate-200 px-4 py-2 text-sm text-slate-900 transition hover:border-violet-300 hover:bg-violet-50';
         b.textContent = t;
+        b.dataset.slot = t;
         if (past) {
           b.classList.add('opacity-40', 'cursor-not-allowed');
         } else {
@@ -1717,7 +1736,7 @@
             document.getElementById('sum-time').textContent = t;
             document.getElementById('summary-title').textContent = `${state.program} · ${state.teacher} · ${fmtDate(state.date)} ${state.time}`;
             document.getElementById('to-step-3').disabled = false;
-            wrap.querySelectorAll('button').forEach((x) => x.classList.remove('border-violet-400', 'bg-violet-50', 'text-violet-600'));
+            wrap.querySelectorAll('button[data-slot]').forEach((x) => x.classList.remove('border-violet-400', 'bg-violet-50', 'text-violet-600'));
             b.classList.add('border-violet-400', 'bg-violet-50', 'text-violet-600');
             if (isSmallScreen()) {
               openStep3(true);
@@ -1777,7 +1796,7 @@
       document.getElementById('selected-date-label').textContent = '-';
       const placeholderHTML = '<p class="col-span-full rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-3 text-center text-xs text-slate-500">날짜를 먼저 선택해주세요.</p>';
       const slotReset = document.getElementById('slot-container');
-      slotReset.className = 'grid grid-cols-1 gap-2 text-sm text-slate-600 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5';
+      slotReset.className = 'time-slot-grid text-sm text-slate-600';
       slotReset.innerHTML = placeholderHTML;
       resetTimeSelection();
     });
@@ -1819,7 +1838,7 @@
       document.getElementById('selected-date-label').textContent = '-';
       const placeholder = '<p class="col-span-full rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-3 text-center text-xs text-slate-500">날짜를 먼저 선택해주세요.</p>';
       const slotPane = document.getElementById('slot-container');
-      slotPane.className = 'grid grid-cols-1 gap-2 text-sm text-slate-600 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5';
+      slotPane.className = 'time-slot-grid text-sm text-slate-600';
       slotPane.innerHTML = placeholder;
       if (!document.getElementById('step-2').classList.contains('hidden')) {
         await renderCalendar();
