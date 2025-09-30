@@ -85,6 +85,46 @@
       opacity: 0;
       pointer-events: none;
     }
+    details {
+      border-radius: 0;
+    }
+    .vibe-panel {
+      border-radius: 28px;
+      border: 1px solid rgba(148, 163, 184, 0.28);
+      background: linear-gradient(120deg, rgba(255,255,255,0.95), rgba(250,245,255,0.88));
+      box-shadow: 0 18px 38px rgba(139, 92, 246, 0.08);
+      padding: 0 1.25rem 1.5rem;
+      overflow: hidden;
+    }
+    .vibe-panel summary {
+      list-style: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1.5rem 0;
+    }
+    .vibe-panel summary::-webkit-details-marker { display: none; }
+    .vibe-panel-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #312e81;
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+    }
+    .summary-icon {
+      transition: transform 0.2s ease;
+      color: #8b5cf6;
+    }
+    .vibe-panel[open] .summary-icon {
+      transform: rotate(180deg);
+    }
+    .vibe-panel-content {
+      border-top: 1px solid rgba(148, 163, 184, 0.25);
+      padding-top: 1.25rem;
+    }
   </style>
 </head>
 <body class="text-slate-800 antialiased">
@@ -307,15 +347,15 @@
                   해커톤 예선 제출을 기준으로 주제 검증부터 산출물 패키징까지 전 과정을 코칭합니다.
                 </p>
                 <div class="mt-6 flex flex-wrap gap-3 text-sm">
-                  <a href="#med-plan" class="inline-flex items-center gap-2 rounded-full border border-violet-100 bg-white/90 px-4 py-2 font-medium text-violet-600 transition hover:border-violet-200 hover:bg-violet-50">
+                  <a href="#panel-overview" data-open-panel="panel-overview" class="inline-flex items-center gap-2 rounded-full border border-violet-100 bg-white/90 px-4 py-2 font-medium text-violet-600 transition hover:border-violet-200 hover:bg-violet-50">
                     <i data-feather="clipboard" class="h-4 w-4"></i>
                     연구 계획서 보기
                   </a>
-                  <a href="#vibe-flow" class="inline-flex items-center gap-2 rounded-full border border-amber-100 bg-white/90 px-4 py-2 font-medium text-amber-600 transition hover:border-amber-200 hover:bg-amber-50">
+                  <a href="#panel-flow" data-open-panel="panel-flow" class="inline-flex items-center gap-2 rounded-full border border-amber-100 bg-white/90 px-4 py-2 font-medium text-amber-600 transition hover:border-amber-200 hover:bg-amber-50">
                     <i data-feather="divide" class="h-4 w-4"></i>
                     단계별 진행 살펴보기
                   </a>
-                  <a href="#vibe-tracks" class="inline-flex items-center gap-2 rounded-full border border-rose-100 bg-white/90 px-4 py-2 font-medium text-rose-600 transition hover:border-rose-200 hover:bg-rose-50">
+                  <a href="#panel-tracks" data-open-panel="panel-tracks" class="inline-flex items-center gap-2 rounded-full border border-rose-100 bg-white/90 px-4 py-2 font-medium text-rose-600 transition hover:border-rose-200 hover:bg-rose-50">
                     <i data-feather="map" class="h-4 w-4"></i>
                     커리큘럼 트랙 확인
                   </a>
@@ -333,308 +373,319 @@
                 </div>
             </div>
 
-            <div id="vibe-examples" class="mt-10 flex flex-col gap-6 lg:flex-row">
-              <div class="flex flex-1 flex-col gap-4 rounded-3xl border border-slate-200 bg-white/95 p-6 shadow-sm">
-                <p class="text-xs font-semibold uppercase tracking-[0.28em] text-violet-500">프로젝트 예시</p>
-                <h4 class="text-2xl font-semibold text-slate-900">🎫 약봉투 OCR → 약 상세 설명</h4>
-                <p class="text-sm leading-relaxed text-slate-600">약 봉투나 라벨 사진을 업로드하면 약 이름·용량·복용 시간·주의 문구를 읽고, 중학생도 이해하기 쉬운 말로 정리해 주는 웹앱입니다.</p>
-                <ul class="space-y-2 text-sm text-slate-600">
-                  <li class="flex items-start gap-2"><span class="mt-1 text-violet-400">•</span><span>OCR로 글자를 읽고, 정규식과 사전을 활용해 핵심 정보를 뽑아 카드 UI로 보여 줍니다.</span></li>
-                  <li class="flex items-start gap-2"><span class="mt-1 text-violet-400">•</span><span>결과는 PNG 카드와 CSV 표로 저장해 가족과 공유할 수 있습니다.</span></li>
-                  <li class="flex items-start gap-2"><span class="mt-1 text-violet-400">•</span><span>Hugging Face Space에 배포해 설치 없이 어디서나 실행 가능합니다.</span></li>
-                </ul>
-                <a href="https://huggingface.co/spaces/LLDDWW/MedCard" target="_blank" rel="noopener" class="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-violet-500 via-amber-500 to-yellow-400 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-violet-200/70 transition hover:from-violet-400 hover:via-amber-400 hover:to-yellow-300">
-                  <i data-feather="external-link" class="h-4 w-4"></i>
-                  약봉투 복약 안내 앱 바로가기
-                </a>
-                <p class="text-xs text-slate-500">* 실제 복약 판단은 반드시 의사·약사의 지시에 따라 주세요.</p>
-              </div>
-
-              <div id="med-plan" class="flex-1 rounded-3xl border border-slate-200 bg-white/95 p-6 shadow-sm">
-                <h4 class="text-lg font-bold text-slate-900">연구 작품 설명서 (중학생용)</h4>
-                <p class="mt-3 text-[15px] leading-relaxed text-slate-600">글씨 크기 12pt 기준, 학교 양식에 맞춰 문구 조정 가능합니다. 아래 내용을 참고해 연구 계획서를 제출하세요.</p>
-                <ol class="mt-6 space-y-6 text-[15px] leading-relaxed text-slate-700">
-                  <li>
-                    <p class="font-semibold text-slate-900">1. 작품 주제</p>
-                    <p class="mt-2">약봉투 OCR → 약 상세 설명. 약 봉투나 약 라벨을 사진으로 찍으면, 약 이름·용량·복용 방법·주의 사항을 읽어 주고 쉬운 말로 정리해 주는 웹앱입니다.</p>
-                  </li>
-                  <li>
-                    <p class="font-semibold text-slate-900">2. 작품의 설명 (제안하는 해법, 이에 대한 근거)</p>
-                    <div class="mt-3 space-y-3">
-                      <div>
-                        <p class="font-medium text-slate-900">제안하는 해법</p>
-                        <ul class="mt-2 space-y-2 text-slate-600">
-                          <li class="flex items-start gap-2"><span class="mt-1 text-violet-400">•</span><span>사진 업로드: 약 봉투/라벨 사진을 올립니다.</span></li>
-                          <li class="flex items-start gap-2"><span class="mt-1 text-violet-400">•</span><span>문자 인식(OCR): 인공지능이 사진 속 글자를 읽습니다.</span></li>
-                          <li class="flex items-start gap-2"><span class="mt-1 text-violet-400">•</span><span>정보 뽑기(파싱): 약 이름, 용량, 복용 횟수, 시간대, 주의 문구를 찾아냅니다.</span></li>
-                          <li class="flex items-start gap-2"><span class="mt-1 text-violet-400">•</span><span>쉬운 설명 생성: 카드 UI와 쉬운 문장으로 결과를 보여 줍니다.</span></li>
-                          <li class="flex items-start gap-2"><span class="mt-1 text-violet-400">•</span><span>결과 저장/공유: PNG·CSV로 저장해 가족과 공유합니다.</span></li>
-                        </ul>
-                      </div>
-                      <div>
-                        <p class="font-medium text-slate-900">근거</p>
-                        <ul class="mt-2 space-y-2 text-slate-600">
-                          <li class="flex items-start gap-2"><span class="mt-1 text-amber-400">•</span><span>약 봉투 글씨는 작고 복잡해 어린이·어르신이 읽기 어렵습니다.</span></li>
-                          <li class="flex items-start gap-2"><span class="mt-1 text-amber-400">•</span><span>OCR과 규칙/사전을 활용하면 핵심 정보를 빠르고 정확하게 찾을 수 있습니다.</span></li>
-                          <li class="flex items-start gap-2"><span class="mt-1 text-amber-400">•</span><span>Hugging Face Space를 사용하면 설치 없이 웹브라우저에서 이용 가능합니다.</span></li>
-                        </ul>
-                      </div>
-                    </div>
-                  </li>
-                  <li>
-                    <p class="font-semibold text-slate-900">3. 기존의 작품(해법)과의 차이점</p>
-                    <ul class="mt-2 space-y-2 text-slate-600">
-                      <li class="flex items-start gap-2"><span class="mt-1 text-rose-400">•</span><span>단순 텍스트가 아닌, 핵심만 모아 쉬운 문장으로 변환합니다.</span></li>
-                      <li class="flex items-start gap-2"><span class="mt-1 text-rose-400">•</span><span>표 모양 카드 UI로 약 이름·용량·횟수·시간대를 직관적으로 제공합니다.</span></li>
-                      <li class="flex items-start gap-2"><span class="mt-1 text-rose-400">•</span><span>주의 사항을 쉬운 말로 안내하고, 개인정보·의료 윤리를 명확히 고지합니다.</span></li>
-                    </ul>
-                  </li>
-                  <li>
-                    <p class="font-semibold text-slate-900">4. 결과</p>
-                    <div class="mt-2 space-y-2 text-slate-600">
-                      <p><span class="font-medium text-slate-900">작동 데모:</span> Hugging Face Space 웹 링크 1개</p>
-                      <p><span class="font-medium text-slate-900">성능(샘플 30장 기준):</span></p>
-                      <ul class="ml-4 mt-1 list-disc space-y-1 text-slate-600">
-                        <li>약 이름 인식 90% (27/30)</li>
-                        <li>용량·횟수 찾기 87% (26/30)</li>
-                        <li>시간대 찾기 83% (25/30)</li>
+            <div id="vibe-lab-panels" class="mt-10 space-y-4">
+              <details id="panel-overview" class="vibe-panel">
+                <summary>
+                  <span class="vibe-panel-title"><i data-feather="layers" class="h-5 w-5 text-violet-500"></i>프로젝트 예시 & 연구 계획서</span>
+                  <i data-feather="chevron-down" class="summary-icon h-5 w-5"></i>
+                </summary>
+                <div class="vibe-panel-content">
+                  <div class="grid gap-6 lg:grid-cols-2">
+                    <div id="vibe-examples" class="flex flex-col gap-4 rounded-3xl border border-slate-200 bg-white/95 p-6 shadow-sm">
+                      <p class="text-xs font-semibold uppercase tracking-[0.28em] text-violet-500">프로젝트 예시</p>
+                      <h4 class="text-2xl font-semibold text-slate-900">🎫 약봉투 OCR → 약 상세 설명</h4>
+                      <p class="text-sm leading-relaxed text-slate-600">약 봉투나 라벨 사진을 업로드하면 약 이름·용량·복용 시간·주의 문구를 읽고, 중학생도 이해하기 쉬운 말로 정리해 주는 웹앱입니다.</p>
+                      <ul class="space-y-2 text-sm text-slate-600">
+                        <li class="flex items-start gap-2"><span class="mt-1 text-violet-400">•</span><span>OCR로 글자를 읽고, 정규식과 사전을 활용해 핵심 정보를 뽑아 카드 UI로 보여 줍니다.</span></li>
+                        <li class="flex items-start gap-2"><span class="mt-1 text-violet-400">•</span><span>결과는 PNG 카드와 CSV 표로 저장해 가족과 공유할 수 있습니다.</span></li>
+                        <li class="flex items-start gap-2"><span class="mt-1 text-violet-400">•</span><span>Hugging Face Space에 배포해 설치 없이 어디서나 실행 가능합니다.</span></li>
                       </ul>
-                      <p><span class="font-medium text-slate-900">예시 출력:</span> “타이레놀 500mg — 하루 3번, 식후 1정. 졸릴 수 있어요. 과다 복용 주의.”</p>
-                      <p><span class="font-medium text-slate-900">제출물 패키지:</span> 데모 링크, 60초 시연 영상, README(4줄 요약), 지표 표</p>
-                      <p><span class="font-medium text-slate-900">활용:</span> 한국코드페어·경상남도교육청 해커톤 예선 제출에 바로 사용 가능</p>
-                      <p class="text-sm text-rose-500">주의: 이 앱은 안내용입니다. 정확한 복용 결정은 의료진 지시를 따르며, 개인정보가 노출된 사진은 업로드하지 않습니다.</p>
+                      <a href="https://huggingface.co/spaces/LLDDWW/MedCard" target="_blank" rel="noopener" class="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-violet-500 via-amber-500 to-yellow-400 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-violet-200/70 transition hover:from-violet-400 hover:via-amber-400 hover:to-yellow-300">
+                        <i data-feather="external-link" class="h-4 w-4"></i>
+                        약봉투 복약 안내 앱 바로가기
+                      </a>
+                      <p class="text-xs text-slate-500">* 실제 복약 판단은 반드시 의사·약사의 지시에 따라 주세요.</p>
                     </div>
-                  </li>
-                </ol>
-              </div>
-            </div>
-
-            <div class="mt-12 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                <div class="rounded-3xl border border-violet-100 bg-white/90 p-5 shadow-sm">
-                  <p class="text-sm font-semibold text-violet-600">말로 하면 뚝딱</p>
-                  <p class="mt-2 text-sm leading-relaxed text-slate-600">아이디어를 말하면 AI가 코드 제안, 함께 다듬어 곧바로 실행합니다.</p>
-                </div>
-                <div class="rounded-3xl border border-amber-100 bg-white/90 p-5 shadow-sm">
-                  <p class="text-sm font-semibold text-amber-600">아이 주도 수업</p>
-                  <p class="mt-2 text-sm leading-relaxed text-slate-600">학생이 기획자 &amp; 테스터 역할, 선생님은 코치로 협업합니다.</p>
-                </div>
-                <div class="rounded-3xl border border-rose-100 bg-white/90 p-5 shadow-sm">
-                  <p class="text-sm font-semibold text-rose-600">해커톤 출전!</p>
-                  <p class="mt-2 text-sm leading-relaxed text-slate-600">한국코드페어·경상남도교육청 예선 제출을 실무형 멘토링으로 지원합니다.</p>
-                </div>
-                <div class="rounded-3xl border border-slate-200 bg-white/90 p-5 shadow-sm">
-                  <p class="text-sm font-semibold text-slate-700">안전/윤리 OK</p>
-                  <p class="mt-2 text-sm leading-relaxed text-slate-600">개인정보 비식별 처리, 출처·라이선스 검수를 함께 진행합니다.</p>
-                </div>
-              </div>
-
-              <div id="vibe-flow" class="mt-14">
-                <h4 class="text-xl font-bold text-slate-900">3단계면 충분해요 😊</h4>
-                <div class="mt-5 grid gap-4 md:grid-cols-3">
-                  <div class="rounded-3xl border border-slate-200 bg-white/95 p-6 shadow-sm">
-                    <div class="text-2xl">🎤</div>
-                    <p class="mt-2 font-semibold text-slate-900">1) 아이디어 말하기</p>
-                    <p class="mt-2 text-sm text-slate-600">하고 싶은 기능을 자연스럽게 말해요. (예: "약봉투 사진에서 약 설명을 보고 싶어요")</p>
-                  </div>
-                  <div class="rounded-3xl border border-violet-100 bg-white/95 p-6 shadow-sm">
-                    <div class="text-2xl">🤖</div>
-                    <p class="mt-2 font-semibold text-slate-900">2) AI와 함께 만들기</p>
-                    <p class="mt-2 text-sm text-slate-600">AI 코드 제안 → 강사와 수정 → 버튼 한 번에 실행하며 기능을 다듬습니다.</p>
-                  </div>
-                  <div class="rounded-3xl border border-amber-100 bg-white/95 p-6 shadow-sm">
-                    <div class="text-2xl">🚀</div>
-                    <p class="mt-2 font-semibold text-slate-900">3) 앱으로 보여주기</p>
-                    <p class="mt-2 text-sm text-slate-600">완성한 앱을 Hugging Face Space 링크로 공유하고 예선 제출까지 연결합니다.</p>
-                  </div>
-                </div>
-              </div>
-
-              <div id="vibe-steps" class="mt-16">
-                <div class="flex flex-col gap-2 sm:flex-row sm:items-baseline sm:justify-between">
-                  <h4 class="text-xl font-bold text-slate-900">진행 단계(7단계)</h4>
-                  <p class="text-sm text-slate-500">각 단계마다 결과물 점검 + 학부모 공유 리포트 제공</p>
-                </div>
-                <div class="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                  <div class="rounded-3xl border border-violet-100 bg-white/90 p-5 shadow-sm">
-                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-violet-500">STEP 1</p>
-                    <p class="mt-2 font-medium text-slate-900">아이디어 인터뷰</p>
-                    <p class="mt-2 text-sm text-slate-600">주제 적정성, 데이터 확보, 윤리 항목을 30분 안에 점검합니다.</p>
-                  </div>
-                  <div class="rounded-3xl border border-violet-100 bg-white/90 p-5 shadow-sm">
-                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-violet-500">STEP 2</p>
-                    <p class="mt-2 font-medium text-slate-900">연구 계획서 작성</p>
-                    <p class="mt-2 text-sm text-slate-600">배경·목적·방법·유사연구·차별점을 1~2쪽으로 설계합니다.</p>
-                  </div>
-                  <div class="rounded-3xl border border-violet-100 bg-white/90 p-5 shadow-sm">
-                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-violet-500">STEP 3</p>
-                    <p class="mt-2 font-medium text-slate-900">기능 명세 설계</p>
-                    <p class="mt-2 text-sm text-slate-600">입력·출력·지표·화면을 정의하고 바이브 코딩 회의로 구조를 확정합니다.</p>
-                  </div>
-                  <div class="rounded-3xl border border-violet-100 bg-white/90 p-5 shadow-sm">
-                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-violet-500">STEP 4</p>
-                    <p class="mt-2 font-medium text-slate-900">앱 제작(라이브)</p>
-                    <p class="mt-2 text-sm text-slate-600">강사와 페어로 app.py를 구현하고 Hugging Face Space에 배포합니다.</p>
-                  </div>
-                  <div class="rounded-3xl border border-violet-100 bg-white/90 p-5 shadow-sm">
-                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-violet-500">STEP 5</p>
-                    <p class="mt-2 font-medium text-slate-900">지표·데모</p>
-                    <p class="mt-2 text-sm text-slate-600">샘플 데이터 평가표와 60초 시연 영상을 제작합니다.</p>
-                  </div>
-                  <div class="rounded-3xl border border-violet-100 bg-white/90 p-5 shadow-sm">
-                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-violet-500">STEP 6</p>
-                    <p class="mt-2 font-medium text-slate-900">문서 패키지</p>
-                    <p class="mt-2 text-sm text-slate-600">README 요약, 윤리 고지, 체크리스트를 완성합니다.</p>
-                  </div>
-                  <div class="rounded-3xl border border-violet-100 bg-white/90 p-5 shadow-sm md:col-span-2 xl:col-span-1">
-                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-violet-500">STEP 7</p>
-                    <p class="mt-2 font-medium text-slate-900">발표 리허설</p>
-                    <p class="mt-2 text-sm text-slate-600">1분 피치와 심사 Q&amp;A 5문항을 리허설로 다듬습니다.</p>
+                    <div id="med-plan" class="rounded-3xl border border-slate-200 bg-white/95 p-6 shadow-sm">
+                      <h4 class="text-lg font-bold text-slate-900">연구 작품 설명서 (중학생용)</h4>
+                      <p class="mt-3 text-[15px] leading-relaxed text-slate-600">글씨 크기 12pt 기준, 학교 양식에 맞춰 문구 조정 가능합니다. 아래 내용을 참고해 연구 계획서를 제출하세요.</p>
+                      <ol class="mt-6 space-y-6 text-[15px] leading-relaxed text-slate-700">
+                        <li>
+                          <p class="font-semibold text-slate-900">1. 작품 주제</p>
+                          <p class="mt-2">약봉투 OCR → 약 상세 설명. 약 봉투나 약 라벨을 사진으로 찍으면, 약 이름·용량·복용 방법·주의 사항을 읽어 주고 쉬운 말로 정리해 주는 웹앱입니다.</p>
+                        </li>
+                        <li>
+                          <p class="font-semibold text-slate-900">2. 작품의 설명 (제안하는 해법, 이에 대한 근거)</p>
+                          <div class="mt-3 space-y-3">
+                            <div>
+                              <p class="font-medium text-slate-900">제안하는 해법</p>
+                              <ul class="mt-2 space-y-2 text-slate-600">
+                                <li class="flex items-start gap-2"><span class="mt-1 text-violet-400">•</span><span>사진 업로드: 약 봉투/라벨 사진을 올립니다.</span></li>
+                                <li class="flex items-start gap-2"><span class="mt-1 text-violet-400">•</span><span>문자 인식(OCR): 인공지능이 사진 속 글자를 읽습니다.</span></li>
+                                <li class="flex items-start gap-2"><span class="mt-1 text-violet-400">•</span><span>정보 뽑기(파싱): 약 이름, 용량, 복용 횟수, 시간대, 주의 문구를 찾아냅니다.</span></li>
+                                <li class="flex items-start gap-2"><span class="mt-1 text-violet-400">•</span><span>쉬운 설명 생성: 카드 UI와 쉬운 문장으로 결과를 보여 줍니다.</span></li>
+                                <li class="flex items-start gap-2"><span class="mt-1 text-violet-400">•</span><span>결과 저장/공유: PNG·CSV로 저장해 가족과 공유합니다.</span></li>
+                              </ul>
+                            </div>
+                            <div>
+                              <p class="font-medium text-slate-900">근거</p>
+                              <ul class="mt-2 space-y-2 text-slate-600">
+                                <li class="flex items-start gap-2"><span class="mt-1 text-amber-400">•</span><span>약 봉투 글씨는 작고 복잡해 어린이·어르신이 읽기 어렵습니다.</span></li>
+                                <li class="flex items-start gap-2"><span class="mt-1 text-amber-400">•</span><span>OCR과 규칙/사전을 활용하면 핵심 정보를 빠르고 정확하게 찾을 수 있습니다.</span></li>
+                                <li class="flex items-start gap-2"><span class="mt-1 text-amber-400">•</span><span>Hugging Face Space를 사용하면 설치 없이 웹브라우저에서 이용 가능합니다.</span></li>
+                              </ul>
+                            </div>
+                          </div>
+                        </li>
+                        <li>
+                          <p class="font-semibold text-slate-900">3. 기존의 작품(해법)과의 차이점</p>
+                          <ul class="mt-2 space-y-2 text-slate-600">
+                            <li class="flex items-start gap-2"><span class="mt-1 text-rose-400">•</span><span>단순 텍스트가 아닌, 핵심만 모아 쉬운 문장으로 변환합니다.</span></li>
+                            <li class="flex items-start gap-2"><span class="mt-1 text-rose-400">•</span><span>표 모양 카드 UI로 약 이름·용량·횟수·시간대를 직관적으로 제공합니다.</span></li>
+                            <li class="flex items-start gap-2"><span class="mt-1 text-rose-400">•</span><span>주의 사항을 쉬운 말로 안내하고, 개인정보·의료 윤리를 명확히 고지합니다.</span></li>
+                          </ul>
+                        </li>
+                        <li>
+                          <p class="font-semibold text-slate-900">4. 결과</p>
+                          <div class="mt-2 space-y-2 text-slate-600">
+                            <p><span class="font-medium text-slate-900">작동 데모:</span> Hugging Face Space 웹 링크 1개</p>
+                            <p><span class="font-medium text-slate-900">성능(샘플 30장 기준):</span></p>
+                            <ul class="ml-4 mt-1 list-disc space-y-1 text-slate-600">
+                              <li>약 이름 인식 90% (27/30)</li>
+                              <li>용량·횟수 찾기 87% (26/30)</li>
+                              <li>시간대 찾기 83% (25/30)</li>
+                            </ul>
+                            <p><span class="font-medium text-slate-900">예시 출력:</span> “타이레놀 500mg — 하루 3번, 식후 1정. 졸릴 수 있어요. 과다 복용 주의.”</p>
+                            <p><span class="font-medium text-slate-900">제출물 패키지:</span> 데모 링크, 60초 시연 영상, README(4줄 요약), 지표 표</p>
+                            <p><span class="font-medium text-slate-900">활용:</span> 한국코드페어·경상남도교육청 해커톤 예선 제출에 바로 사용 가능</p>
+                            <p class="text-sm text-rose-500">주의: 이 앱은 안내용입니다. 정확한 복용 결정은 의료진 지시를 따르며, 개인정보가 노출된 사진은 업로드하지 않습니다.</p>
+                          </div>
+                        </li>
+                      </ol>
+                    </div>
                   </div>
                 </div>
-              </div>
-
-              <div id="vibe-tracks" class="mt-16">
-                <div class="flex flex-col gap-2 sm:flex-row sm:items-baseline sm:justify-between">
-                  <h4 class="text-xl font-bold text-slate-900">과정 선택</h4>
-                  <p class="text-sm text-slate-500">모든 트랙은 프로젝트 아카이브와 발표 자료까지 완성</p>
-                </div>
-                <div class="mt-6 grid gap-4 md:grid-cols-2">
-                  <div class="rounded-3xl border border-violet-100 bg-white/95 p-6 shadow-sm">
-                    <div class="flex items-center justify-between">
-                      <div>
-                        <p class="text-sm font-semibold text-violet-500">예선·학교행사 대비</p>
-                        <p class="mt-1 text-lg font-bold text-slate-900">4주 패스트 트랙</p>
+              </details>
+              <details id="panel-flow" class="vibe-panel">
+                <summary>
+                  <span class="vibe-panel-title"><i data-feather="activity" class="h-5 w-5 text-amber-500"></i>진행 흐름 & 주간 코칭</span>
+                  <i data-feather="chevron-down" class="summary-icon h-5 w-5"></i>
+                </summary>
+                <div class="vibe-panel-content">
+                  <div id="vibe-flow">
+                    <h4 class="text-xl font-bold text-slate-900">3단계면 충분해요 😊</h4>
+                    <div class="mt-5 grid gap-4 md:grid-cols-3">
+                      <div class="rounded-3xl border border-slate-200 bg-white/95 p-6 shadow-sm">
+                        <div class="text-2xl">🎤</div>
+                        <p class="mt-2 font-semibold text-slate-900">1) 아이디어 말하기</p>
+                        <p class="mt-2 text-sm text-slate-600">하고 싶은 기능을 자연스럽게 말해요. (예: "약봉투 사진에서 약 설명을 보고 싶어요")</p>
                       </div>
-                      <span class="text-xs text-slate-500">주 2회 · 회당 90분</span>
+                      <div class="rounded-3xl border border-violet-100 bg-white/95 p-6 shadow-sm">
+                        <div class="text-2xl">🤖</div>
+                        <p class="mt-2 font-semibold text-slate-900">2) AI와 함께 만들기</p>
+                        <p class="mt-2 text-sm text-slate-600">AI 코드 제안 → 강사와 수정 → 버튼 한 번에 실행하며 기능을 다듬습니다.</p>
+                      </div>
+                      <div class="rounded-3xl border border-amber-100 bg-white/95 p-6 shadow-sm">
+                        <div class="text-2xl">🚀</div>
+                        <p class="mt-2 font-semibold text-slate-900">3) 앱으로 보여주기</p>
+                        <p class="mt-2 text-sm text-slate-600">완성한 앱을 Hugging Face Space 링크로 공유하고 예선 제출까지 연결합니다.</p>
+                      </div>
                     </div>
-                    <ul class="mt-4 space-y-2 text-sm leading-relaxed text-slate-600">
-                      <li><span class="text-violet-400">•</span> W1: 주제 확정·계획서(1차) / 윤리·저작권</li>
-                      <li><span class="text-violet-400">•</span> W2: 바이브 코딩#1 — UI 뼈대 / 최초 배포</li>
-                      <li><span class="text-violet-400">•</span> W3: 바이브 코딩#2 — 핵심 기능·지표 / README</li>
-                      <li><span class="text-violet-400">•</span> W4: 바이브 코딩#3 — 안정화 / 60초 영상 / 제출물 완성</li>
+                  </div>
+                  <div id="vibe-steps" class="mt-12">
+                    <div class="flex flex-col gap-2 sm:flex-row sm:items-baseline sm:justify-between">
+                      <h4 class="text-xl font-bold text-slate-900">진행 단계(7단계)</h4>
+                      <p class="text-sm text-slate-500">각 단계마다 결과물 점검 + 학부모 공유 리포트 제공</p>
+                    </div>
+                    <div class="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                      <div class="rounded-3xl border border-violet-100 bg-white/90 p-5 shadow-sm">
+                        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-violet-500">STEP 1</p>
+                        <p class="mt-2 font-medium text-slate-900">아이디어 인터뷰</p>
+                        <p class="mt-2 text-sm text-slate-600">주제 적정성, 데이터 확보, 윤리 항목을 30분 안에 점검합니다.</p>
+                      </div>
+                      <div class="rounded-3xl border border-violet-100 bg-white/90 p-5 shadow-sm">
+                        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-violet-500">STEP 2</p>
+                        <p class="mt-2 font-medium text-slate-900">연구 계획서 작성</p>
+                        <p class="mt-2 text-sm text-slate-600">배경·목적·방법·유사연구·차별점을 1~2쪽으로 설계합니다.</p>
+                      </div>
+                      <div class="rounded-3xl border border-violet-100 bg-white/90 p-5 shadow-sm">
+                        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-violet-500">STEP 3</p>
+                        <p class="mt-2 font-medium text-slate-900">기능 명세 설계</p>
+                        <p class="mt-2 text-sm text-slate-600">입력·출력·지표·화면을 정의하고 바이브 코딩 회의로 구조를 확정합니다.</p>
+                      </div>
+                      <div class="rounded-3xl border border-violet-100 bg-white/90 p-5 shadow-sm">
+                        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-violet-500">STEP 4</p>
+                        <p class="mt-2 font-medium text-slate-900">앱 제작(라이브)</p>
+                        <p class="mt-2 text-sm text-slate-600">강사와 페어로 app.py를 구현하고 Hugging Face Space에 배포합니다.</p>
+                      </div>
+                      <div class="rounded-3xl border border-violet-100 bg-white/90 p-5 shadow-sm">
+                        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-violet-500">STEP 5</p>
+                        <p class="mt-2 font-medium text-slate-900">지표·데모</p>
+                        <p class="mt-2 text-sm text-slate-600">샘플 데이터 평가표와 60초 시연 영상을 제작합니다.</p>
+                      </div>
+                      <div class="rounded-3xl border border-violet-100 bg-white/90 p-5 shadow-sm">
+                        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-violet-500">STEP 6</p>
+                        <p class="mt-2 font-medium text-slate-900">문서 패키지</p>
+                        <p class="mt-2 text-sm text-slate-600">README 요약, 윤리 고지, 체크리스트를 완성합니다.</p>
+                      </div>
+                      <div class="rounded-3xl border border-violet-100 bg-white/90 p-5 shadow-sm md:col-span-2 xl:col-span-1">
+                        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-violet-500">STEP 7</p>
+                        <p class="mt-2 font-medium text-slate-900">발표 리허설</p>
+                        <p class="mt-2 text-sm text-slate-600">1분 피치와 심사 Q&A 5문항을 리허설로 다듬습니다.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </details>
+              <details id="panel-tracks" class="vibe-panel">
+                <summary>
+                  <span class="vibe-panel-title"><i data-feather="git-branch" class="h-5 w-5 text-rose-500"></i>커리큘럼 트랙 & 제출물</span>
+                  <i data-feather="chevron-down" class="summary-icon h-5 w-5"></i>
+                </summary>
+                <div class="vibe-panel-content">
+                  <div id="vibe-tracks">
+                    <div class="flex flex-col gap-2 sm:flex-row sm:items-baseline sm:justify-between">
+                      <h4 class="text-xl font-bold text-slate-900">과정 선택</h4>
+                      <p class="text-sm text-slate-500">모든 트랙은 프로젝트 아카이브와 발표 자료까지 완성</p>
+                    </div>
+                    <div class="mt-6 grid gap-4 md:grid-cols-2">
+                      <div class="rounded-3xl border border-violet-100 bg-white/95 p-6 shadow-sm">
+                        <div class="flex items-center justify-between">
+                          <div>
+                            <p class="text-sm font-semibold text-violet-500">예선·학교행사 대비</p>
+                            <p class="mt-1 text-lg font-bold text-slate-900">4주 패스트 트랙</p>
+                          </div>
+                          <span class="text-xs text-slate-500">주 2회 · 회당 90분</span>
+                        </div>
+                        <ul class="mt-4 space-y-2 text-sm leading-relaxed text-slate-600">
+                          <li><span class="text-violet-400">•</span> W1: 주제 확정·계획서(1차) / 윤리·저작권</li>
+                          <li><span class="text-violet-400">•</span> W2: 바이브 코딩#1 — UI 뼈대 / 최초 배포</li>
+                          <li><span class="text-violet-400">•</span> W3: 바이브 코딩#2 — 핵심 기능·지표 / README</li>
+                          <li><span class="text-violet-400">•</span> W4: 바이브 코딩#3 — 안정화 / 60초 영상 / 제출물 완성</li>
+                        </ul>
+                      </div>
+                      <div class="rounded-3xl border border-amber-100 bg-white/95 p-6 shadow-sm">
+                        <div class="flex items-center justify-between">
+                          <div>
+                            <p class="text-sm font-semibold text-amber-500">완성도·확장성 중시</p>
+                            <p class="mt-1 text-lg font-bold text-slate-900">6주 정규 트랙</p>
+                          </div>
+                          <span class="text-xs text-slate-500">주 2회 · 회당 90분</span>
+                        </div>
+                        <ul class="mt-4 space-y-2 text-sm leading-relaxed text-slate-600">
+                          <li><span class="text-amber-400">•</span> W1: 배경·목적·유사연구 / 계획서(1차)</li>
+                          <li><span class="text-amber-400">•</span> W2: 방법·데이터·지표 설계 / 계획서(2차)</li>
+                          <li><span class="text-amber-400">•</span> W3: 바이브 코딩#1 — 입력·출력 / Space 배포</li>
+                          <li><span class="text-amber-400">•</span> W4: 바이브 코딩#2 — 모델 연동 / 저장(PNG·CSV)</li>
+                          <li><span class="text-amber-400">•</span> W5: 지표 측정·오류 분석 / 윤리 고지</li>
+                          <li><span class="text-amber-400">•</span> W6: 안정화·데모 영상·피치 코칭 / 제출 패키지</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                  <div id="vibe-outcomes" class="mt-12">
+                    <h4 class="text-xl font-bold text-slate-900">수업이 끝나면 손에 쥐는 것</h4>
+                    <div class="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                      <div class="rounded-3xl border border-violet-100 bg-white/90 p-5 shadow-sm">
+                        <p class="text-sm font-semibold text-violet-600">웹앱 링크</p>
+                        <p class="mt-2 text-sm text-slate-600">Hugging Face Space (공개/미공개 옵션)으로 전달드립니다.</p>
+                      </div>
+                      <div class="rounded-3xl border border-amber-100 bg-white/90 p-5 shadow-sm">
+                        <p class="text-sm font-semibold text-amber-600">60초 데모</p>
+                        <p class="mt-2 text-sm text-slate-600">시작→입력→결과→지표→고지를 담은 발표 영상.</p>
+                      </div>
+                      <div class="rounded-3xl border border-rose-100 bg-white/90 p-5 shadow-sm">
+                        <p class="text-sm font-semibold text-rose-600">README</p>
+                        <p class="mt-2 text-sm text-slate-600">문제·해결·지표·링크를 4줄 요약으로 정리합니다.</p>
+                      </div>
+                      <div class="rounded-3xl border border-slate-200 bg-white/90 p-5 shadow-sm">
+                        <p class="text-sm font-semibold text-slate-700">지표 표</p>
+                        <p class="mt-2 text-sm text-slate-600">베이스라인 대비 개선 수치를 정리한 평가표.</p>
+                      </div>
+                      <div class="rounded-3xl border border-slate-200 bg-white/90 p-5 shadow-sm md:col-span-2 xl:col-span-4">
+                        <p class="text-sm font-semibold text-slate-700">해커톤 제출 패키지</p>
+                        <p class="mt-2 text-sm text-slate-600">한국코드페어·경상남도교육청 등 예선 제출에 필요한 링크·영상·README·지표 자료까지 준비합니다.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </details>
+              <details id="panel-competencies" class="vibe-panel">
+                <summary>
+                  <span class="vibe-panel-title"><i data-feather="target" class="h-5 w-5 text-emerald-500"></i>성장 역량 & 학습 효과</span>
+                  <i data-feather="chevron-down" class="summary-icon h-5 w-5"></i>
+                </summary>
+                <div class="vibe-panel-content">
+                  <div id="vibe-competencies">
+                    <h4 class="text-xl font-bold text-slate-900">미래 AI 교육과 연결되는 역량</h4>
+                    <div class="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                      <div class="rounded-3xl border border-violet-100 bg-white/90 p-5 shadow-sm">
+                        <p class="text-sm font-semibold text-violet-600">AI 리터러시</p>
+                        <p class="mt-2 text-sm text-slate-600">생성·분류·OCR·ASR 등 다양한 AI 과제를 이해합니다.</p>
+                      </div>
+                      <div class="rounded-3xl border border-amber-100 bg-white/90 p-5 shadow-sm">
+                        <p class="text-sm font-semibold text-amber-600">데이터 윤리</p>
+                        <p class="mt-2 text-sm text-slate-600">개인정보 비식별, 저작권, 출처 표기 원칙을 실습합니다.</p>
+                      </div>
+                      <div class="rounded-3xl border border-rose-100 bg-white/90 p-5 shadow-sm">
+                        <p class="text-sm font-semibold text-rose-600">문제 해결</p>
+                        <p class="mt-2 text-sm text-slate-600">연구 질문 → 기능 명세 → 지표 설계로 사고력을 키웁니다.</p>
+                      </div>
+                      <div class="rounded-3xl border border-slate-200 bg-white/90 p-5 shadow-sm">
+                        <p class="text-sm font-semibold text-slate-700">커뮤니케이션</p>
+                        <p class="mt-2 text-sm text-slate-600">1분 피치, README, 영상 스토리라인으로 표현력을 강화합니다.</p>
+                      </div>
+                    </div>
+                    <p class="mt-4 text-sm text-slate-500">* 대회: <span class="font-semibold text-slate-900">한국코드페어</span>(해커톤/공모전), <span class="font-semibold text-slate-900">경상남도교육청</span> SW·AI 해커톤 등 예선 제출 기준에 맞춰 제작·검수합니다. 일정·자격·지도교사 요건은 각 대회 공지를 따릅니다.</p>
+                  </div>
+                </div>
+              </details>
+              <details id="panel-safety" class="vibe-panel">
+                <summary>
+                  <span class="vibe-panel-title"><i data-feather="shield" class="h-5 w-5 text-slate-500"></i>안전·FAQ · 상담 안내</span>
+                  <i data-feather="chevron-down" class="summary-icon h-5 w-5"></i>
+                </summary>
+                <div class="vibe-panel-content">
+                  <div id="vibe-safety" class="rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-sm">
+                    <h4 class="text-xl font-bold text-slate-900">안전·윤리·저작권</h4>
+                    <ul class="mt-4 space-y-2 text-sm leading-relaxed text-slate-600 list-disc list-inside">
+                      <li>개인정보 비식별: 이름·생년월일·처방번호 등 민감 정보 업로드 금지</li>
+                      <li>출처·라이선스 표기: 모델·데이터·코드 출처와 허가 범위를 README에 명시</li>
+                      <li>AI 사용 공개: 사용 도구, 버전, 설정을 README에 기록</li>
+                      <li>현장 본선 대비: 네트워크·설치 제한 시 오프라인 데모 백업 준비</li>
                     </ul>
                   </div>
-                  <div class="rounded-3xl border border-amber-100 bg-white/95 p-6 shadow-sm">
-                    <div class="flex items-center justify-between">
-                      <div>
-                        <p class="text-sm font-semibold text-amber-500">완성도·확장성 중시</p>
-                        <p class="mt-1 text-lg font-bold text-slate-900">6주 정규 트랙</p>
+                  <div id="vibe-faq" class="mt-12">
+                    <h4 class="text-xl font-bold text-slate-900">자주 묻는 질문</h4>
+                    <div class="mt-6 grid gap-4 md:grid-cols-2">
+                      <div class="rounded-3xl border border-violet-100 bg-white/90 p-5 shadow-sm">
+                        <p class="font-semibold text-slate-900">바이브 코딩이 뭔가요?</p>
+                        <p class="mt-2 text-sm leading-relaxed text-slate-600"><span class="font-semibold text-violet-500">바이브 코딩</span>은 AI에게 자연어로 원하는 기능을 설명하면 코드를 생성·수정해 주는 개발 방식입니다. 수업에서는 학생 설명 → AI 코드 제안 → 강사 검토/수정 → 배포를 빠르게 반복합니다.</p>
                       </div>
-                      <span class="text-xs text-slate-500">주 2회 · 회당 90분</span>
+                      <div class="rounded-3xl border border-violet-100 bg-white/90 p-5 shadow-sm">
+                        <p class="font-semibold text-slate-900">대회 제출에 적합한가요?</p>
+                        <p class="mt-2 text-sm leading-relaxed text-slate-600">예. 대부분 예선은 링크·영상·README·지표 중심 심사이며, 세부 규정은 대회 공지를 따릅니다.</p>
+                      </div>
+                      <div class="rounded-3xl border border-violet-100 bg-white/90 p-5 shadow-sm">
+                        <p class="font-semibold text-slate-900">우리 아이 연구 주제도 가능한가요?</p>
+                        <p class="mt-2 text-sm leading-relaxed text-slate-600">의학·교육·생활 편의·환경 등 폭넓게 가능합니다. 첫 상담에서 적정성과 윤리를 함께 점검합니다.</p>
+                      </div>
+                      <div class="rounded-3xl border border-violet-100 bg-white/90 p-5 shadow-sm">
+                        <p class="font-semibold text-slate-900">결과물 소유권은 누구에게?</p>
+                        <p class="mt-2 text-sm leading-relaxed text-slate-600">학생/학부모 명의 저장소에 보관하며, 학원은 멘토링과 제작 지원 역할을 담당합니다. 내부 약관을 준수합니다.</p>
+                      </div>
                     </div>
-                    <ul class="mt-4 space-y-2 text-sm leading-relaxed text-slate-600">
-                      <li><span class="text-amber-400">•</span> W1: 배경·목적·유사연구 / 계획서(1차)</li>
-                      <li><span class="text-amber-400">•</span> W2: 방법·데이터·지표 설계 / 계획서(2차)</li>
-                      <li><span class="text-amber-400">•</span> W3: 바이브 코딩#1 — 입력·출력 / Space 배포</li>
-                      <li><span class="text-amber-400">•</span> W4: 바이브 코딩#2 — 모델 연동 / 저장(PNG·CSV)</li>
-                      <li><span class="text-amber-400">•</span> W5: 지표 측정·오류 분석 / 윤리 고지</li>
-                      <li><span class="text-amber-400">•</span> W6: 안정화·데모 영상·피치 코칭 / 제출 패키지</li>
-                    </ul>
+                  </div>
+                  <div id="vibe-cta" class="mt-12 rounded-3xl border border-violet-100 bg-gradient-to-r from-violet-100 via-white to-amber-100 p-6 sm:p-8 shadow-lg shadow-violet-100/60">
+                    <div class="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+                      <div>
+                        <p class="text-lg font-bold text-slate-900">상담 신청</p>
+                        <p class="mt-2 text-sm text-slate-600">학부모 성함·학생 학년·희망 주제를 남겨 주세요. 24시간 내로 답변드립니다.</p>
+                      </div>
+                      <div class="flex flex-wrap gap-3">
+                        <a href="#" class="inline-flex items-center gap-2 rounded-full bg-rose-600 px-5 py-2 text-sm font-semibold text-white shadow-md shadow-rose-200/60 transition hover:bg-rose-500">
+                          <i data-feather="message-circle" class="h-4 w-4"></i>
+                          카카오채널
+                        </a>
+                        <a href="#" class="inline-flex items-center gap-2 rounded-full bg-slate-900 px-5 py-2 text-sm font-semibold text-white shadow-md shadow-slate-400/40 transition hover:bg-slate-800">
+                          <i data-feather="mail" class="h-4 w-4"></i>
+                          이메일 문의
+                        </a>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-
-              <div id="vibe-outcomes" class="mt-16">
-                <h4 class="text-xl font-bold text-slate-900">수업이 끝나면 손에 쥐는 것</h4>
-                <div class="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                  <div class="rounded-3xl border border-violet-100 bg-white/90 p-5 shadow-sm">
-                    <p class="text-sm font-semibold text-violet-600">웹앱 링크</p>
-                    <p class="mt-2 text-sm text-slate-600">Hugging Face Space (공개/미공개 옵션)으로 전달드립니다.</p>
-                  </div>
-                  <div class="rounded-3xl border border-amber-100 bg-white/90 p-5 shadow-sm">
-                    <p class="text-sm font-semibold text-amber-600">60초 데모</p>
-                    <p class="mt-2 text-sm text-slate-600">시작→입력→결과→지표→고지를 담은 발표 영상.</p>
-                  </div>
-                  <div class="rounded-3xl border border-rose-100 bg-white/90 p-5 shadow-sm">
-                    <p class="text-sm font-semibold text-rose-600">README</p>
-                    <p class="mt-2 text-sm text-slate-600">문제·해결·지표·링크를 4줄 요약으로 정리합니다.</p>
-                  </div>
-                  <div class="rounded-3xl border border-slate-200 bg-white/90 p-5 shadow-sm">
-                    <p class="text-sm font-semibold text-slate-700">지표 표</p>
-                    <p class="mt-2 text-sm text-slate-600">베이스라인 대비 개선 수치를 정리한 평가표.</p>
-                  </div>
-                  <div class="rounded-3xl border border-slate-200 bg-white/90 p-5 shadow-sm md:col-span-2 xl:col-span-4">
-                    <p class="text-sm font-semibold text-slate-700">해커톤 제출 패키지</p>
-                    <p class="mt-2 text-sm text-slate-600">한국코드페어·경상남도교육청 등 예선 제출에 필요한 링크·영상·README·지표 자료까지 준비합니다.</p>
-                  </div>
-                </div>
-              </div>
-
-              <div id="vibe-competencies" class="mt-16">
-                <h4 class="text-xl font-bold text-slate-900">미래 AI 교육과 연결되는 역량</h4>
-                <div class="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                  <div class="rounded-3xl border border-violet-100 bg-white/90 p-5 shadow-sm">
-                    <p class="text-sm font-semibold text-violet-600">AI 리터러시</p>
-                    <p class="mt-2 text-sm text-slate-600">생성·분류·OCR·ASR 등 다양한 AI 과제를 이해합니다.</p>
-                  </div>
-                  <div class="rounded-3xl border border-amber-100 bg-white/90 p-5 shadow-sm">
-                    <p class="text-sm font-semibold text-amber-600">데이터 윤리</p>
-                    <p class="mt-2 text-sm text-slate-600">개인정보 비식별, 저작권, 출처 표기 원칙을 실습합니다.</p>
-                  </div>
-                  <div class="rounded-3xl border border-rose-100 bg-white/90 p-5 shadow-sm">
-                    <p class="text-sm font-semibold text-rose-600">문제 해결</p>
-                    <p class="mt-2 text-sm text-slate-600">연구 질문 → 기능 명세 → 지표 설계로 사고력을 키웁니다.</p>
-                  </div>
-                  <div class="rounded-3xl border border-slate-200 bg-white/90 p-5 shadow-sm">
-                    <p class="text-sm font-semibold text-slate-700">커뮤니케이션</p>
-                    <p class="mt-2 text-sm text-slate-600">1분 피치, README, 영상 스토리라인으로 표현력을 강화합니다.</p>
-                  </div>
-                </div>
-                <p class="mt-4 text-sm text-slate-500">* 대회: <span class="font-semibold text-slate-900">한국코드페어</span>(해커톤/공모전), <span class="font-semibold text-slate-900">경상남도교육청</span> SW·AI 해커톤 등 예선 제출 기준에 맞춰 제작·검수합니다. 일정·자격·지도교사 요건은 각 대회 공지를 따릅니다.</p>
-              </div>
-
-              <div id="vibe-safety" class="mt-16">
-                <div class="rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-sm">
-                  <h4 class="text-xl font-bold text-slate-900">안전·윤리·저작권</h4>
-                  <ul class="mt-4 space-y-2 text-sm leading-relaxed text-slate-600 list-disc list-inside">
-                    <li>개인정보 비식별: 이름·생년월일·처방번호 등 민감 정보 업로드 금지</li>
-                    <li>출처·라이선스 표기: 모델·데이터·코드 출처와 허가 범위를 README에 명시</li>
-                    <li>AI 사용 공개: 사용 도구, 버전, 설정을 README에 기록</li>
-                    <li>현장 본선 대비: 네트워크·설치 제한 시 오프라인 데모 백업 준비</li>
-                  </ul>
-                </div>
-              </div>
-
-              <div id="vibe-faq" class="mt-16">
-                <h4 class="text-xl font-bold text-slate-900">자주 묻는 질문</h4>
-                <div class="mt-6 grid gap-4 md:grid-cols-2">
-                  <div class="rounded-3xl border border-violet-100 bg-white/90 p-5 shadow-sm">
-                    <p class="font-semibold text-slate-900">바이브 코딩이 뭔가요?</p>
-                    <p class="mt-2 text-sm leading-relaxed text-slate-600"><span class="font-semibold text-violet-500">바이브 코딩</span>은 AI에게 자연어로 원하는 기능을 설명하면 코드를 생성·수정해 주는 개발 방식입니다. 수업에서는 학생 설명 → AI 코드 제안 → 강사 검토/수정 → 배포를 빠르게 반복합니다.</p>
-                  </div>
-                  <div class="rounded-3xl border border-violet-100 bg-white/90 p-5 shadow-sm">
-                    <p class="font-semibold text-slate-900">대회 제출에 적합한가요?</p>
-                    <p class="mt-2 text-sm leading-relaxed text-slate-600">예. 대부분 예선은 링크·영상·README·지표 중심 심사이며, 세부 규정은 대회 공지를 따릅니다.</p>
-                  </div>
-                  <div class="rounded-3xl border border-violet-100 bg-white/90 p-5 shadow-sm">
-                    <p class="font-semibold text-slate-900">우리 아이 연구 주제도 가능한가요?</p>
-                    <p class="mt-2 text-sm leading-relaxed text-slate-600">의학·교육·생활 편의·환경 등 폭넓게 가능합니다. 첫 상담에서 적정성과 윤리를 함께 점검합니다.</p>
-                  </div>
-                  <div class="rounded-3xl border border-violet-100 bg-white/90 p-5 shadow-sm">
-                    <p class="font-semibold text-slate-900">결과물 소유권은 누구에게?</p>
-                    <p class="mt-2 text-sm leading-relaxed text-slate-600">학생/학부모 명의 저장소에 보관하며, 학원은 멘토링과 제작 지원 역할을 담당합니다. 내부 약관을 준수합니다.</p>
-                  </div>
-                </div>
-              </div>
-
-              <div id="vibe-cta" class="mt-16 rounded-3xl border border-violet-100 bg-gradient-to-r from-violet-100 via-white to-amber-100 p-6 sm:p-8 shadow-lg shadow-violet-100/60">
-                <div class="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-                  <div>
-                    <p class="text-lg font-bold text-slate-900">상담 신청</p>
-                    <p class="mt-2 text-sm text-slate-600">학부모 성함·학생 학년·희망 주제를 남겨 주세요. 24시간 내로 답변드립니다.</p>
-                  </div>
-                  <div class="flex flex-wrap gap-3">
-                    <a href="#" class="inline-flex items-center gap-2 rounded-full bg-rose-600 px-5 py-2 text-sm font-semibold text-white shadow-md shadow-rose-200/60 transition hover:bg-rose-500">
-                      <i data-feather="message-circle" class="h-4 w-4"></i>
-                      카카오채널
-                    </a>
-                    <a href="#" class="inline-flex items-center gap-2 rounded-full bg-slate-900 px-5 py-2 text-sm font-semibold text-white shadow-md shadow-slate-400/40 transition hover:bg-slate-800">
-                      <i data-feather="mail" class="h-4 w-4"></i>
-                      이메일 문의
-                    </a>
-                  </div>
-                </div>
-              </div>
+              </details>
             </div>
           </div>
         </div>
@@ -1293,6 +1344,20 @@
         mobileToggle.click();
       }
       openChatWidget();
+    });
+
+    document.querySelectorAll('[data-open-panel]').forEach((link) => {
+      link.addEventListener('click', (event) => {
+        event.preventDefault();
+        const panelId = link.getAttribute('data-open-panel');
+        const panel = panelId ? document.getElementById(panelId) : null;
+        if (!panel) return;
+        document.querySelectorAll('.vibe-panel').forEach((other) => {
+          if (other !== panel) other.removeAttribute('open');
+        });
+        panel.setAttribute('open', '');
+        setTimeout(() => panel.scrollIntoView({ behavior: 'smooth', block: 'start' }), 70);
+      });
     });
 
     // ===== 예약 모달 =====
