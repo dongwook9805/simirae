@@ -317,9 +317,85 @@
                     주 2회 · 회당 90분 · 라이브 페어 코딩
                   </span>
                 </div>
+            </div>
+
+            <div id="vibe-examples" class="mt-10 flex flex-col gap-6 lg:flex-row">
+              <div class="flex flex-1 flex-col gap-4 rounded-3xl border border-slate-200 bg-white/95 p-6 shadow-sm">
+                <p class="text-xs font-semibold uppercase tracking-[0.28em] text-violet-500">프로젝트 예시</p>
+                <h4 class="text-2xl font-semibold text-slate-900">🎫 약봉투 OCR → 약 상세 설명</h4>
+                <p class="text-sm leading-relaxed text-slate-600">약 봉투나 라벨 사진을 업로드하면 약 이름·용량·복용 시간·주의 문구를 읽고, 중학생도 이해하기 쉬운 말로 정리해 주는 웹앱입니다.</p>
+                <ul class="space-y-2 text-sm text-slate-600">
+                  <li class="flex items-start gap-2"><span class="mt-1 text-violet-400">•</span><span>OCR로 글자를 읽고, 정규식과 사전을 활용해 핵심 정보를 뽑아 카드 UI로 보여 줍니다.</span></li>
+                  <li class="flex items-start gap-2"><span class="mt-1 text-violet-400">•</span><span>결과는 PNG 카드와 CSV 표로 저장해 가족과 공유할 수 있습니다.</span></li>
+                  <li class="flex items-start gap-2"><span class="mt-1 text-violet-400">•</span><span>Hugging Face Space에 배포해 설치 없이 어디서나 실행 가능합니다.</span></li>
+                </ul>
+                <a href="https://huggingface.co/spaces/LLDDWW/MedCard" target="_blank" rel="noopener" class="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-violet-500 via-amber-500 to-yellow-400 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-violet-200/70 transition hover:from-violet-400 hover:via-amber-400 hover:to-yellow-300">
+                  <i data-feather="external-link" class="h-4 w-4"></i>
+                  약봉투 복약 안내 앱 바로가기
+                </a>
+                <p class="text-xs text-slate-500">* 실제 복약 판단은 반드시 의사·약사의 지시에 따라 주세요.</p>
               </div>
 
-              <div class="mt-10 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              <div id="med-plan" class="flex-1 rounded-3xl border border-slate-200 bg-white/95 p-6 shadow-sm">
+                <h4 class="text-lg font-bold text-slate-900">연구 작품 설명서 (중학생용)</h4>
+                <p class="mt-3 text-[15px] leading-relaxed text-slate-600">글씨 크기 12pt 기준, 학교 양식에 맞춰 문구 조정 가능합니다. 아래 내용을 참고해 연구 계획서를 제출하세요.</p>
+                <ol class="mt-6 space-y-6 text-[15px] leading-relaxed text-slate-700">
+                  <li>
+                    <p class="font-semibold text-slate-900">1. 작품 주제</p>
+                    <p class="mt-2">약봉투 OCR → 약 상세 설명. 약 봉투나 약 라벨을 사진으로 찍으면, 약 이름·용량·복용 방법·주의 사항을 읽어 주고 쉬운 말로 정리해 주는 웹앱입니다.</p>
+                  </li>
+                  <li>
+                    <p class="font-semibold text-slate-900">2. 작품의 설명 (제안하는 해법, 이에 대한 근거)</p>
+                    <div class="mt-3 space-y-3">
+                      <div>
+                        <p class="font-medium text-slate-900">제안하는 해법</p>
+                        <ul class="mt-2 space-y-2 text-slate-600">
+                          <li class="flex items-start gap-2"><span class="mt-1 text-violet-400">•</span><span>사진 업로드: 약 봉투/라벨 사진을 올립니다.</span></li>
+                          <li class="flex items-start gap-2"><span class="mt-1 text-violet-400">•</span><span>문자 인식(OCR): 인공지능이 사진 속 글자를 읽습니다.</span></li>
+                          <li class="flex items-start gap-2"><span class="mt-1 text-violet-400">•</span><span>정보 뽑기(파싱): 약 이름, 용량, 복용 횟수, 시간대, 주의 문구를 찾아냅니다.</span></li>
+                          <li class="flex items-start gap-2"><span class="mt-1 text-violet-400">•</span><span>쉬운 설명 생성: 카드 UI와 쉬운 문장으로 결과를 보여 줍니다.</span></li>
+                          <li class="flex items-start gap-2"><span class="mt-1 text-violet-400">•</span><span>결과 저장/공유: PNG·CSV로 저장해 가족과 공유합니다.</span></li>
+                        </ul>
+                      </div>
+                      <div>
+                        <p class="font-medium text-slate-900">근거</p>
+                        <ul class="mt-2 space-y-2 text-slate-600">
+                          <li class="flex items-start gap-2"><span class="mt-1 text-amber-400">•</span><span>약 봉투 글씨는 작고 복잡해 어린이·어르신이 읽기 어렵습니다.</span></li>
+                          <li class="flex items-start gap-2"><span class="mt-1 text-amber-400">•</span><span>OCR과 규칙/사전을 활용하면 핵심 정보를 빠르고 정확하게 찾을 수 있습니다.</span></li>
+                          <li class="flex items-start gap-2"><span class="mt-1 text-amber-400">•</span><span>Hugging Face Space를 사용하면 설치 없이 웹브라우저에서 이용 가능합니다.</span></li>
+                        </ul>
+                      </div>
+                    </div>
+                  </li>
+                  <li>
+                    <p class="font-semibold text-slate-900">3. 기존의 작품(해법)과의 차이점</p>
+                    <ul class="mt-2 space-y-2 text-slate-600">
+                      <li class="flex items-start gap-2"><span class="mt-1 text-rose-400">•</span><span>단순 텍스트가 아닌, 핵심만 모아 쉬운 문장으로 변환합니다.</span></li>
+                      <li class="flex items-start gap-2"><span class="mt-1 text-rose-400">•</span><span>표 모양 카드 UI로 약 이름·용량·횟수·시간대를 직관적으로 제공합니다.</span></li>
+                      <li class="flex items-start gap-2"><span class="mt-1 text-rose-400">•</span><span>주의 사항을 쉬운 말로 안내하고, 개인정보·의료 윤리를 명확히 고지합니다.</span></li>
+                    </ul>
+                  </li>
+                  <li>
+                    <p class="font-semibold text-slate-900">4. 결과</p>
+                    <div class="mt-2 space-y-2 text-slate-600">
+                      <p><span class="font-medium text-slate-900">작동 데모:</span> Hugging Face Space 웹 링크 1개</p>
+                      <p><span class="font-medium text-slate-900">성능(샘플 30장 기준):</span></p>
+                      <ul class="ml-4 mt-1 list-disc space-y-1 text-slate-600">
+                        <li>약 이름 인식 90% (27/30)</li>
+                        <li>용량·횟수 찾기 87% (26/30)</li>
+                        <li>시간대 찾기 83% (25/30)</li>
+                      </ul>
+                      <p><span class="font-medium text-slate-900">예시 출력:</span> “타이레놀 500mg — 하루 3번, 식후 1정. 졸릴 수 있어요. 과다 복용 주의.”</p>
+                      <p><span class="font-medium text-slate-900">제출물 패키지:</span> 데모 링크, 60초 시연 영상, README(4줄 요약), 지표 표</p>
+                      <p><span class="font-medium text-slate-900">활용:</span> 한국코드페어·경상남도교육청 해커톤 예선 제출에 바로 사용 가능</p>
+                      <p class="text-sm text-rose-500">주의: 이 앱은 안내용입니다. 정확한 복용 결정은 의료진 지시를 따르며, 개인정보가 노출된 사진은 업로드하지 않습니다.</p>
+                    </div>
+                  </li>
+                </ol>
+              </div>
+            </div>
+
+            <div class="mt-12 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
                 <div class="rounded-3xl border border-violet-100 bg-white/90 p-5 shadow-sm">
                   <p class="text-sm font-semibold text-violet-600">말로 하면 뚝딱</p>
                   <p class="mt-2 text-sm leading-relaxed text-slate-600">아이디어를 말하면 AI가 코드 제안, 함께 다듬어 곧바로 실행합니다.</p>
@@ -466,32 +542,6 @@
                   <div class="rounded-3xl border border-slate-200 bg-white/90 p-5 shadow-sm md:col-span-2 xl:col-span-4">
                     <p class="text-sm font-semibold text-slate-700">해커톤 제출 패키지</p>
                     <p class="mt-2 text-sm text-slate-600">한국코드페어·경상남도교육청 등 예선 제출에 필요한 링크·영상·README·지표 자료까지 준비합니다.</p>
-                  </div>
-                </div>
-              </div>
-
-              <div id="vibe-examples" class="mt-16">
-                <h4 class="text-xl font-bold text-slate-900">가능한 프로젝트 예시</h4>
-                <div class="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                  <div class="rounded-3xl border border-slate-200 bg-white/90 p-5 shadow-sm">
-                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">문서 인식</p>
-                    <p class="mt-2 text-base font-medium text-slate-900">🎫 약봉투 OCR → 약 상세 설명</p>
-                    <p class="mt-2 text-sm text-slate-600">사진에서 약명·용량·복용법·주의사항을 요약합니다.</p>
-                  </div>
-                  <div class="rounded-3xl border border-slate-200 bg-white/90 p-5 shadow-sm">
-                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">텍스트 분석</p>
-                    <p class="mt-2 text-base font-medium text-slate-900">💬 착한 댓글 필터</p>
-                    <p class="mt-2 text-sm text-slate-600">유해 표현을 감지하고 대체 문장을 추천합니다.</p>
-                  </div>
-                  <div class="rounded-3xl border border-slate-200 bg-white/90 p-5 shadow-sm">
-                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">요약/생성</p>
-                    <p class="mt-2 text-base font-medium text-slate-900">📖 동화 3문장 요약 + 대안 결말</p>
-                    <p class="mt-2 text-sm text-slate-600">독후 활동을 자동화하고 창의적 결말을 제안합니다.</p>
-                  </div>
-                  <div class="rounded-3xl border border-slate-200 bg-white/90 p-5 shadow-sm">
-                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">이미지 분류</p>
-                    <p class="mt-2 text-base font-medium text-slate-900">🧸 분실물 이미지 분류</p>
-                    <p class="mt-2 text-sm text-slate-600">우산·물병·책 등 5종을 분류해 학교 안내에 활용합니다.</p>
                   </div>
                 </div>
               </div>

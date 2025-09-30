@@ -1,0 +1,460 @@
+import json
+import re
+from typing import Any, Dict, List, Optional, Sequence
+
+import gradio as gr
+import numpy as np
+import paddle
+import torch
+from PIL import Image, ImageDraw
+from paddleocr import PaddleOCR
+from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
+
+# --- OCR pipeline ---------------------------------------------------------
+# Use a high-capacity OCR model for better accuracy on prescription labels.
+OCR_LANGS = ["korean", "en"]
+LLM_MODEL_ID = "Qwen/Qwen2.5-1.5B-Instruct"
+
+
+def _load_ocr():
+    use_gpu = torch.cuda.is_available()
+    device = "gpu" if use_gpu else "cpu"
+    paddle.device.set_device(device)
+    return PaddleOCR(
+        lang=OCR_LANGS[0],
+        use_textline_orientation=True,
+        show_log=False,
+        text_det_limit_side_len=2048,
+        text_det_box_thresh=0.5,
+        det_model_dir=None,
+        rec_model_dir=None,
+    )
+
+
+ocr_reader = _load_ocr()
+
+
+def _load_llm():
+    device_map = "auto" if torch.cuda.is_available() else None
+    dtype = torch.float16 if torch.cuda.is_available() else torch.float32
+    model = AutoModelForCausalLM.from_pretrained(
+        LLM_MODEL_ID,
+        device_map=device_map,
+        torch_dtype=dtype,
+        trust_remote_code=True,
+    )
+    if device_map is None:
+        model = model.to(torch.device("cpu"))
+    tokenizer = AutoTokenizer.from_pretrained(LLM_MODEL_ID, trust_remote_code=True)
+    return model, tokenizer
+
+
+LLM_MODEL, LLM_TOKENIZER = _load_llm()
+
+# Korean keywords describing time slots on prescription labels.
+TIME_KEYWORDS = [
+    "아침",
+    "점심",
+    "저녁",
+    "취침",
+    "자기",
+    "식전",
+    "식후",
+    "식간",
+    "기상",
+]
+
+# Very small knowledge base for common Korean OTC medications.
+MED_KNOWLEDGE: Sequence[Dict[str, Any]] = [
+    {
+        "keywords": ["타이레놀", "아세트아미노펜", "acetaminophen"],
+        "category": "진통·해열제",
+        "what_it_does": "몸살이나 감기로 열이 나거나 머리가 아플 때 통증과 열을 낮춰 줍니다.",
+        "example": "예: 수학시험 준비로 긴장했는데 머리가 지끈거릴 때, 한 알 복용하면 통증이 줄어듭니다.",
+        "tip": "위에 부담을 줄이기 위해 간단한 간식과 함께 물과 복용하고, 하루 총 복용 횟수(일반적으로 4회 이하)를 넘기지 마세요.",
+    },
+    {
+        "keywords": ["이부프로펜", "부루펜", "ibuprofen"],
+        "category": "진통·소염제",
+        "what_it_does": "몸속 염증을 가라앉히고 통증을 완화해서 근육통이나 치통에 자주 사용됩니다.",
+        "example": "예: 체육 시간에 무릎을 살짝 삐었을 때 붓기와 아픔을 줄여 줍니다.",
+        "tip": "식후에 복용하면 속 쓰림을 줄일 수 있고, 다른 소염진통제와는 시간 간격을 두세요.",
+    },
+    {
+        "keywords": ["시잘", "세티리진", "cetirizine", "지르텍"],
+        "category": "알레르기 완화제",
+        "what_it_does": "코가 간질거리거나 피부가 가려울 때 알레르기 반응을 가라앉혀 줍니다.",
+        "example": "예: 봄철 꽃가루 때문에 기침과 콧물이 나올 때 증상을 줄여 줍니다.",
+        "tip": "졸릴 수 있으니 첫 복용 후에는 운전이나 집중이 필요한 활동은 피하세요.",
+    },
+    {
+        "keywords": ["훼스탈", "pancreatin", "위장", "소화제"],
+        "category": "소화제",
+        "what_it_does": "기름진 음식을 먹고 배가 더부룩할 때 소화를 도와 속을 편하게 해 줍니다.",
+        "example": "예: 치킨을 많이 먹어 속이 더부룩할 때 속을 가볍게 해 줍니다.",
+        "tip": "식후에 복용하면 효과가 좋으며, 복통이 계속되면 병원을 방문하세요.",
+    },
+    {
+        "keywords": ["비타민", "multivitamin", "vitamin"],
+        "category": "영양제",
+        "what_it_does": "몸에 필요한 비타민을 채워 피곤함을 줄이고 면역력을 돕습니다.",
+        "example": "예: 시험 준비로 잠을 줄였을 때 몸이 지치지 않도록 도와줍니다.",
+        "tip": "하루 권장량을 지켜 꾸준히 복용하면 더 효과적이며, 물과 함께 삼키세요.",
+    },
+]
+
+
+def _extract_time_slots(text: str) -> List[str]:
+    slots = []
+    for kw in TIME_KEYWORDS:
+        if kw in text:
+            slots.append(kw)
+    # Also capture explicit times like 08:00 혹은 8시
+    for match in re.findall(r"(\d{1,2}[:시]\d{0,2})", text):
+        norm = match.replace("시", ":")
+        if norm.endswith(":"):
+            norm += "00"
+        if norm not in slots:
+            slots.append(norm)
+    return slots
+
+
+STOPWORDS = {"용법", "용량", "복용", "방법", "약", "정"}
+
+
+def _extract_medications(text: str) -> List[Dict[str, Optional[str]]]:
+    meds: List[Dict[str, Optional[str]]] = []
+    pattern = re.compile(
+        r"([가-힣A-Za-z]{2,})[\s·]*(\d+[\./]?\d*\s*(?:mg|mL|ML|ml|정|캡슐))?"
+    )
+    seen: set[str] = set()
+    for match in pattern.finditer(text):
+        name = match.group(1)
+        if name in STOPWORDS or len(name) <= 1:
+            continue
+        if any(sw in name for sw in STOPWORDS):
+            continue
+        name_norm = name.strip()
+        if name_norm in seen:
+            continue
+        seen.add(name_norm)
+        dose = match.group(2).strip() if match.group(2) else None
+        meds.append({"name": name_norm, "dose": dose})
+    return meds
+
+
+def parse_fields(raw: str) -> Dict[str, Any]:
+    """Extract drug name and dosage information from OCR text."""
+    collapsed = raw.replace("\n", " ")
+    collapsed = re.sub(r"\s+", " ", collapsed)
+
+    medications = _extract_medications(collapsed)
+
+    first = medications[0] if medications else {"name": None, "dose": None}
+    drug_name = first.get("name")
+    dose_per_intake = first.get("dose")
+
+    times_per_day: Optional[int] = None
+    times_match = re.search(r"(?:1일|하루)\s*(\d+)\s*회", collapsed)
+    if times_match:
+        times_per_day = int(times_match.group(1))
+
+    time_slots = _extract_time_slots(collapsed)
+
+    return {
+        "drug_name": drug_name,
+        "dose_per_intake": dose_per_intake,
+        "times_per_day": times_per_day,
+        "time_slots": time_slots or None,
+        "medications": medications,
+    }
+
+
+def ocr_and_parse(image: Image.Image) -> Dict[str, Any]:
+    np_img = np.array(image.convert("RGB"))
+    ocr_results = ocr_reader.ocr(np_img, cls=True)
+
+    segments: List[Dict[str, Any]] = []
+    lines: List[str] = []
+    for result in ocr_results:
+        if not result:
+            continue
+        for bbox, (text, confidence) in result:
+            cleaned = (text or "").strip()
+            if not cleaned:
+                continue
+            lines.append(cleaned)
+            box_serializable = np.asarray(bbox, dtype=float).tolist()
+            segments.append({
+                "text": cleaned,
+                "confidence": float(confidence),
+                "bbox": box_serializable,
+            })
+
+    raw_text = "\n".join(lines)
+    fields = parse_fields(raw_text)
+
+    warnings: List[str] = []
+    if not fields["drug_name"]:
+        warnings.append("약 이름 인식이 불확실합니다.")
+    if not fields["times_per_day"]:
+        warnings.append("1일 횟수를 찾지 못했습니다 (예: 1일 3회).")
+
+    return {
+        "raw_text": raw_text,
+        "fields": fields,
+        "warnings": warnings,
+        "segments": segments,
+    }
+
+
+def render_card(fields: Dict[str, Any]) -> Image.Image:
+    width, height = 720, 400
+    img = Image.new("RGB", (width, height), "white")
+    draw = ImageDraw.Draw(img)
+
+    header_text = "오늘 복용 일정"
+    draw.rectangle((0, 0, width, 60), fill=(230, 240, 255))
+    draw.text((24, 18), header_text, fill=(0, 0, 0))
+
+    y = 90
+
+    def add_line(label: str, value: Optional[str]):
+        nonlocal y
+        draw.text((24, y), label, fill=(60, 60, 60))
+        display = value if value else "-"
+        draw.text((180, y), f": {display}", fill=(0, 0, 0))
+        y += 34
+
+    add_line("약 이름", fields.get("drug_name"))
+    add_line("1회 용량", fields.get("dose_per_intake"))
+    add_line("1일 횟수", str(fields.get("times_per_day") or ""))
+
+    slots = fields.get("time_slots") or []
+    add_line("시간대", ", ".join(slots) if slots else None)
+
+    footer = "※ 의료진 처방이 우선이며, 본 앱은 참고용입니다."
+    draw.text((24, height - 60), footer, fill=(120, 120, 120))
+    return img
+
+
+def to_csv_row(output: Dict[str, Any]) -> str:
+    fields = output["fields"]
+    row = [
+        fields.get("drug_name") or "",
+        fields.get("dose_per_intake") or "",
+        str(fields.get("times_per_day") or ""),
+        ";".join(fields.get("time_slots") or []),
+    ]
+    return ",".join(row)
+
+
+def _match_knowledge(name: str) -> Optional[Dict[str, Any]]:
+    lowered = name.lower()
+    for info in MED_KNOWLEDGE:
+        for kw in info["keywords"]:
+            if kw.lower() in lowered or lowered in kw.lower():
+                return info
+    return None
+
+
+def build_kb_explanations(output: Dict[str, Any]) -> str:
+    meds = output["fields"].get("medications") or []
+    if not meds:
+        return (
+            "### 약 설명\n"
+            "- 약 이름을 정확히 인식하지 못했어요. 사진을 다시 찍거나 약사에게 직접 확인해 주세요.\n"
+            "\n> ⚠️ 의료진 처방과 복약 지시가 가장 우선입니다."
+        )
+
+    lines = ["### 쉽게 알아보는 약 설명"]
+    for med in meds:
+        name = med.get("name") or "이름 미확인"
+        info = _match_knowledge(name) if name else None
+        dose = med.get("dose")
+        if info:
+            lines.append(
+                f"- **{name}** ({info['category']})"
+            )
+            if dose:
+                lines.append(f"  - 약 봉투에 적힌 용량: `{dose}`")
+            lines.append(f"  - 하는 일: {info['what_it_does']}")
+            lines.append(f"  - 중학생 예시: {info['example']}")
+            lines.append(f"  - 복용 팁: {info['tip']}")
+        else:
+            lines.append(f"- **{name}**")
+            if dose:
+                lines.append(f"  - 약 봉투 용량: `{dose}`")
+            lines.append(
+                "  - 아직 데이터가 없어요. 약 이름을 다시 확인하거나 약사에게 물어보세요."
+            )
+
+    lines.append("\n> ⚠️ 실제 복약은 의사·약사의 지시에 반드시 따르세요.")
+    return "\n".join(lines)
+
+
+def generate_llm_explanations(output: Dict[str, Any]) -> str:
+    meds = output["fields"].get("medications") or []
+    if not meds:
+        return (
+            "약 이름을 제대로 인식하지 못했어요. 사진을 다시 찍거나 약사에게 직접 확인해 주세요."
+        )
+
+    med_lines = []
+    for idx, med in enumerate(meds, 1):
+        name = med.get("name") or "이름 미확인"
+        dose = med.get("dose") or "용량 정보 없음"
+        med_lines.append(f"{idx}. {name} — {dose}")
+
+    context = "\n".join(med_lines)
+    raw_text = output.get("raw_text", "")
+
+    system_prompt = (
+        "당신은 약사 선생님입니다. 어려운 의학 용어를 쓰지 말고, 중학생도 이해할 수 있는 말투로 친절하게 설명하세요."
+    )
+    user_prompt = (
+        "다음은 약봉투에서 OCR로 추출한 전체 텍스트입니다. 약 이름과 복용 지시를 기반으로 각 약의 정보를 아주 쉽게 정리해 주세요.\n"
+        "요구 사항:\n"
+        "1. 각 약마다 아래 항목을 bullet 형식으로 작성합니다.\n"
+        "   - 약 이름: (가능하면 한글/영문 병기)\n"
+        "   - 어떤 약인지 한 줄 설명\n"
+        "   - 복용 예시: 언제, 어떤 상황에서 복용하면 좋은지 예시\n"
+        "   - 복용 방법 예시: 1회 용량/하루 횟수가 있다면 언급\n"
+        "   - 부작용 또는 주의사항: 흔한 부작용, 피해야 할 행동\n"
+        "2. 어려운 의학 용어는 피하고, 중학생도 이해할 수 있는 말투로 작성합니다.\n"
+        "3. 약 이름을 확실히 모르면 ‘이름 미확인’이라고 쓰고, 약사에게 확인하라고 안내합니다.\n"
+        "4. 마지막 문단에 반드시 ‘실제 복약은 의사·약사의 지시를 따르세요’ 문장을 포함하세요.\n"
+        f"\n약 목록(추출 요약):\n{context}\n\nOCR 원문 전체:\n{raw_text}\n"
+    )
+
+    messages = [
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": user_prompt},
+    ]
+
+    input_ids = LLM_TOKENIZER.apply_chat_template(
+        messages,
+        add_generation_prompt=True,
+        return_tensors="pt",
+    )
+    input_ids = input_ids.to(LLM_MODEL.device)
+
+    with torch.no_grad():
+        output_ids = LLM_MODEL.generate(
+            input_ids,
+            max_new_tokens=480,
+            temperature=0.7,
+            top_p=0.9,
+            do_sample=True,
+            eos_token_id=LLM_TOKENIZER.eos_token_id,
+        )
+
+    generated_ids = output_ids[0][input_ids.shape[1]:]
+    text = LLM_TOKENIZER.decode(generated_ids, skip_special_tokens=True).strip()
+    return text
+
+
+def build_explanations(output: Dict[str, Any]) -> str:
+    try:
+        llm_text = generate_llm_explanations(output)
+        if llm_text:
+            return llm_text
+    except Exception as err:  # pragma: no cover - safe fallback
+        print(f"[WARN] LLM generation failed: {err}", flush=True)
+    return build_kb_explanations(output)
+
+
+def format_warnings(warnings: List[str]) -> str:
+    if not warnings:
+        return "✅ 인식된 정보가 충분해요. 복약 시간만 잘 지켜 주세요."
+    lines = ["### 확인해 주세요"]
+    for warn in warnings:
+        lines.append(f"- {warn}")
+    lines.append("\n> 의료진의 지시가 가장 정확합니다.")
+    return "\n".join(lines)
+
+
+def run_pipeline(image: Optional[Image.Image]):
+    if image is None:
+        return (
+            "이미지를 업로드하세요.",
+            None,
+            None,
+            "이미지를 먼저 업로드해 주세요.",
+            "📷 약 봉투 사진을 올리면 인식이 시작돼요.",
+            "",
+        )
+
+    output = ocr_and_parse(image)
+    card = render_card(output["fields"])
+    csv_row = to_csv_row(output)
+    json_text = json.dumps(output, ensure_ascii=False, indent=2)
+    explanations = build_explanations(output)
+    warnings_md = format_warnings(output.get("warnings", []))
+    return json_text, card, csv_row, explanations, warnings_md, output.get("raw_text", "")
+
+
+CUSTOM_CSS = """
+body {background: radial-gradient(circle at top left, #f5f0ff 0%, #fff7ec 60%, #ffffff 100%);}
+.gradio-container {max-width: 1180px !important; margin: auto; font-family: 'Noto Sans KR', sans-serif;}
+.hero {
+  background: linear-gradient(120deg, rgba(123, 97, 255, 0.12), rgba(255, 207, 117, 0.18));
+  border-radius: 28px;
+  padding: 36px 44px;
+  box-shadow: 0 20px 40px rgba(66, 46, 138, 0.08);
+  margin-bottom: 32px;
+}
+.hero h1 {font-size: 2.4rem; font-weight: 700; color: #1f1c3b; margin-bottom: 12px;}
+.hero p {color: #514c7b; font-size: 1.05rem; line-height: 1.6; max-width: 640px;}
+.glass-panel {background: rgba(255, 255, 255, 0.72); backdrop-filter: blur(18px); border-radius: 26px; padding: 28px; box-shadow: 0 12px 32px rgba(80, 60, 160, 0.12);}
+.panel-title {font-weight: 700; font-size: 1.2rem; margin-bottom: 18px; color: #2f2355;}
+.primary-btn button {background: linear-gradient(120deg, #7c62ff, #ffa74d); border: none; color: white; font-weight: 600; border-radius: 999px; padding: 12px 22px; box-shadow: 0 12px 24px rgba(124, 98, 255, 0.25);} 
+.primary-btn button:hover {opacity: 0.95; transform: translateY(-1px);}
+.output-card {background: rgba(255, 255, 255, 0.88); border-radius: 22px; padding: 24px; box-shadow: inset 0 0 0 1px rgba(124, 98, 255, 0.08), 0 14px 30px rgba(49, 32, 114, 0.12);}
+.notice {background: rgba(255, 247, 226, 0.9); border-radius: 18px; padding: 18px; color: #7a4b00; box-shadow: inset 0 0 0 1px rgba(255, 193, 96, 0.3);}
+.csv-box textarea {font-family: 'JetBrains Mono', monospace;}
+.gr-image {border-radius: 20px !important; box-shadow: 0 10px 20px rgba(60, 40, 120, 0.15);}
+.accordion {border-radius: 20px !important;}
+"""
+
+HERO_HTML = """
+<div class="hero">
+  <h1>MedCard-KR · 약봉투 한 컷으로 이해하는 복용 안내</h1>
+  <p>사진 속 약 이름을 OCR로 읽어 들이고, Qwen LLM이 중학생도 이해할 수 있는 말투로 약을 설명해 드립니다.
+     복용 일정 카드와 CSV까지 한 번에 받아 보세요.</p>
+</div>
+"""
+
+
+with gr.Blocks(theme=gr.themes.Soft(), css=CUSTOM_CSS) as demo:
+    gr.HTML(HERO_HTML)
+    with gr.Row():
+        with gr.Column(scale=4, elem_classes=["glass-panel"]):
+            gr.Markdown("### 1. 약 봉투 사진을 업로드하세요")
+            img_in = gr.Image(type="pil", label="약 봉투/라벨 사진", height=360)
+            warn_md = gr.Markdown("📷 약 봉투 사진을 올리면 인식이 시작돼요.", elem_classes=["notice"])
+            btn = gr.Button("인식 & 설명 생성", elem_classes=["primary-btn"])
+        with gr.Column(scale=6, elem_classes=["glass-panel"]):
+            gr.Markdown("### 2. 결과를 확인하세요")
+            explain_md = gr.Markdown("여기에 약 설명이 표시됩니다.", elem_classes=["output-card"])
+            raw_box = gr.Textbox(label="OCR 원문 텍스트", lines=5, interactive=False)
+            card_out = gr.Image(type="pil", label="일정 카드(미리보기)")
+            csv_box = gr.Textbox(label="CSV(약명,1회용량,1일횟수,시간대)", lines=2, elem_classes=["csv-box"])
+            with gr.Accordion("세부 JSON 결과", open=False, elem_classes=["accordion"]):
+                json_out = gr.Code(label="인식 결과(JSON)")
+
+    btn.click(
+        run_pipeline,
+        inputs=img_in,
+        outputs=[json_out, card_out, csv_box, explain_md, warn_md, raw_box],
+    )
+
+    gr.Markdown(
+        """
+        > ℹ️ **주의**: 이 서비스는 참고용 도구이며, 실제 복약은 반드시 의사·약사의 지시에 따라 주세요.
+        """
+    )
+
+
+if __name__ == "__main__":
+    demo.queue().launch()
